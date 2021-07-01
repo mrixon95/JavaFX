@@ -107,9 +107,11 @@ Nodes that descend from parent can have child in the scene graph eg. GridPane is
 
 
 
-Stage is a top level Ui container whilst the scene is backed by a scene graph which contains the UI nodes. To change what is shown, we just need to change the scene.
+Stage is a top level Ui container whilst the scene is backed by a scene graph which contains the UI nodes. To change the UI we just need to change the scene. In practice, we load in a new fxml file and call stage .set scene. Just changes the scene every time a user clicks next.
 
 
+
+Lets not use fxml files and instead use code. Create a gridpane node and make it the root of our scene.
 
 Set alignment and gaps for the GridPane
 ```
@@ -119,9 +121,9 @@ root.setVgap(10)
 root.setHgap(10);
 ```
 
+![setThingsManuallyWithCode](D:\Files\Udemy\TimBulchalkaCourseJava\images\setThingsManuallyWithCode.PNG)
 
-
-Set greeting
+Set greeting. Add the label to thre pane by using the get children method which returned a list of the children. No shortcut.
 
 ```
 Label greeting = new Label("Welcome to JavaFX!");
@@ -161,17 +163,29 @@ We will focus on fxml route. Best practice to define UI through fxml.
 
 Don't need to touch code when change fxml.
 
+![LabelandFontFXML](D:\Files\Udemy\TimBulchalkaCourseJava\images\LabelandFontFXML.PNG)
+
+
+
+Focus on fxml route. FXML is good practice because it forces you to seperate your business logic from your UI. Changes how the javafx application looks without changing a line of code.
+
 
 
 Javafx has 8 layouts: GridPane, StackPane, AnchorPane, Hbox, Vbox, FlowPane, BorderPane, TilePane
 
+Layout allow adding controls to a UI container without having to write code to managed to resizing and repositioning of those controls. Layouts manage all of this.
 
+Controls have a Preferred width and height based, it is based on its contents.
 
-Controls have a Preferred width and height based.
+The button control had large text then it would resize itself so its border fits around the text.
 
-
+When a control is place within a layout it becomes a child of the layout.
 
 GridPane has cells within it. Lays out its children within those cells. The rows and columns sizes are flexible. Row will be as large as the largest control it contains and the columns will be as large as the largest control it contains.
+
+
+
+GridPane
 
 
 
@@ -191,11 +205,23 @@ Default position is column 0 row 0.
 
 
 
+![GridPanepositioning](D:\Files\Udemy\TimBulchalkaCourseJava\images\GridPanepositioning.PNG)
+
+
+
+Each row is the height of the tallest control and each column is the width of the widest row
+
+The gap between each row and column is 10.
+
+
+
 Alignment is by default set to center
 
 ```gridLinesVisible="true"```
 
 10 pixel gap between each row and 10 pixel gap between each column
+
+Use gridLinesVisible equal to true for debugging.
 
 
 
@@ -207,6 +233,8 @@ gridLinesVisible="true"
 
 1st constraint applies to the first column, 2nd constraint applies to the second column.
 
+Ordering matters!
+
 ```
 <columnConstraints>
     <ColumnConstraints percentWidth="50.0"/>
@@ -215,6 +243,12 @@ gridLinesVisible="true"
 ```
 
 
+
+![column_and_row_contraints](.\images\column_and_row_contraints.PNG)
+
+
+
+alignment="top_center"
 
 
 
@@ -228,7 +262,7 @@ Can put in padding on the top above buttons
 
 
 
-Change alignment
+Change GridPane alignment
 
 ```
 <GridPane fx:controller="sample.Controller"
@@ -237,21 +271,47 @@ Change alignment
 
 
 
-Change row span of buttons
+Change Button alignment
 
 ```
-<Button text="Button One" GridPane.rowIndex="0" GridPane.columnIndex="0" GridPane.halignment="Right"/>
+<GridPane fx:controller="sample.Controller"
+          xmlns:fx="http://javafx.com/fxml" alignment="top_center" hgap="10" vgap="10" gridLinesVisible="true">
+```
+
+![column_and_row_contraints](.\images\column_and_row_contraints.PNG)
+
+
+
+Change row or column span of buttons
+
+```
+<Button text="Really Long Button Four" GridPane.rowIndex="0" GridPane.columnIndex="0" GridPane.columnSpan="2"/>
 ```
 
 
 
 HBox lays out children in a row and sizes them to their preferred widths.
 
-HBox will stretch itself and not its children to fill the excess
+HBox will stretch itself to fill excess and not its children to fill the excess
 
 fillheight=true by default, hbox will fill extra height
 
-fillheight=false children will fill extra height
+fillheight=false then children will be stretched to fill extra height
+
+
+
+Hbox example
+
+
+
+```
+<HBox fx:controller="sample.Controller"
+      xmlns:fx="http://javafx.com/fxml" alignment="top_center" style="-fx-border-color: red; -fx-border-width: 3; -fx-border-style: dashed">
+    <Button text="Okay"/>
+    <Button text="Cancel"/>
+    <Button text="Help"/>
+</HBox>
+```
 
 
 
@@ -269,9 +329,38 @@ style="-fx-border-color: red; -fx-border-width: 3;-fx-border-style: dashed">
 
 
 
+Inserting padding and do pref width
+
+```
+<HBox fx:controller="sample.Controller"
+      xmlns:fx="http://javafx.com/fxml" alignment="bottom_right" style="-fx-border-color: red; -fx-border-width: 3; -fx-border-style: dashed"
+spacing="10">
+
+    <padding>
+        <Insets bottom="10" right="10"/>
+    </padding>
+
+    <Button text="Okay" prefWidth="120"/>
+    <Button text="Cancel" prefWidth="120"/>
+    <Button text="Help" prefWidth="120"/>
+</HBox>
+```
+
+
+
+
+
+
+
 ### BorderPane layout
 
 BorderPane places controls in 1 of 5 positions: Top, Bottom, Left, Right, Center
+
+![borderpanelayout](.\images\borderpanelayout.PNG)
+
+
+
+
 
 Works well for client applications.
 
@@ -282,6 +371,10 @@ Central area to place data
 Information panel to the right hand side
 
 Status bar to the bottom
+
+
+
+Children in Top and bottom positions get preferred heights
 
 
 
@@ -330,6 +423,44 @@ Controls in left and right positions of a border pane will be sized to their pre
 
 
 
+```
+<BorderPane fx:controller="sample.Controller" xmlns:fx="http://javafx.com/fxml">
+
+    <top>
+        <Label text="This label is in the top position" alignment="CENTER"
+               BorderPane.alignment="top_right"
+               style="-fx-border-color: blue; -fx-border-width: 3; -fx-border-style: dashed"/>
+    </top>
+
+    <left>
+        <Label text="This label is in the left position" alignment="center"/>
+    </left>
+
+    <right>
+        <Label text="This label is in the right position" alignment="center"/>
+    </right>
+
+    <center>
+        <Label text="This Label is in the center position and has really long text loooooooooonnnnnngggg"/>
+    </center>
+
+    <bottom>
+        <HBox spacing="10" alignment="center">
+            <padding>
+                <Insets bottom="10" right="10"/>
+            </padding>
+            <Button text="Okay" prefHeight="90" prefWidth="90"/>
+            <Button text="Cancel" prefWidth="90"/>
+            <Button text="Help" prefWidth="90"/>
+        </HBox>
+    </bottom>
+</BorderPane>
+```
+
+
+
+
+
 Center will get space left over after controls are placed in other positions.
 
 
@@ -338,9 +469,13 @@ If the controls in the top, bottom, left and right positions weren't already at 
 
 
 
+
+
+
+
 Anchor pane anchor children to the edges. Eg. a title to the top of the pane, a hbox with buttons to the bottom.
 
-
+![FlowPanetrystofit](D:\Files\Udemy\TimBulchalkaCourseJava\images\FlowPanetrystofit.PNG)
 
 FlowPane layout wraps its children to the next row when the orientation is set to horizontal.
 
@@ -364,6 +499,14 @@ FlowPane layout wraps its children to the next row when the orientation is set t
 
 VBox stacks the buttons vertically and cuts them off when the screen becomes small.
 
+
+
+![VBox_cuts_off](D:\Files\Udemy\TimBulchalkaCourseJava\images\VBox_cuts_off.PNG)
+
+
+
+
+
 When you don't know how many children there will be, eg. programatically, use flowpane.
 
 When you know how many children there will be, use vbox
@@ -372,9 +515,21 @@ When you know how many children there will be, use vbox
 
 TilePane is similar to a flowpane but every cell or tile has the same size
 
+
+
+![FlowPaneChildrenWidthsAreDifferent](.\images\FlowPaneChildrenWidthsAreDifferent.PNG)
+
+
+
 Each tile has the width of the largest button. Buttons are centered in each cell.
 
+![Eachcellallocatedsamewidth](.\images\Eachcellallocatedsamewidth.PNG)
 
+
+
+
+
+## Stack pane layout
 
 Stack pane stacks all the controls on top of eachother
 
@@ -386,7 +541,17 @@ Stack pane stacks all the controls on top of eachother
 </StackPane>
 ```
 
-The order in which we add the controls to the fxml will determine the order of the controls on the stack pane. The first control we add will be on the bottom and the last control will be on the top. 0th child is on the bottom, last child is on the top.
+The order in which we add the controls to the fxml will determine the order of the controls on the stack pane. The first control we add will be on the bottom of the stack and the last control will be on the top. 0th child is on the bottom, last child is on the top.
+
+
+
+
+
+![StackPane](.\images\StackPane.PNG)
+
+
+
+
 
 
 
@@ -401,6 +566,12 @@ The order in which we add the controls to the fxml will determine the order of t
 
 To know properties that can be set on a control, go to the docs https://docs.oracle.com/javase/8/javafx/api/javafx/scene/control/Button.html
 
+![Node_Base_Class](D:\Files\Udemy\TimBulchalkaCourseJava\images\Node_Base_Class.PNG)
+
+
+
+
+
 Node is the base class forall scene graph nodes.
 
 Button inherits from Control and Control inherits from Node
@@ -410,6 +581,8 @@ Button has cancelButton and defaultButton properties.
 Button inherits height as well as many other properties.
 
 
+
+Every Javafx control provide a default implementation of the Skinnable interface.
 
 Text comes from the labelled class
 
