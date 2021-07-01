@@ -59,13 +59,55 @@ module Tim.Bulchalka.course {
 
 
 
+Javafx application comes from javafx.application.Application
 
+Javafx applications must have a class that extends Application. Application manages the life cycle of the application. 
+
+We care about init, start and stop.
+
+When we run the application, Application.Launch is run from the main method. It launches the Javafx application and only finishes when the Javafx application exits
+
+Init method runs first. Then the start method. We need to override it because it is an abstract method in the Application class.
+
+When the application finishes, eg. the user closes the application, the stop method is run. It is empty, unless we override it.
+
+
+
+Stage extends the window class and is a top-level java container. Javafx window contructs the initial stage and passes it to the start method.
+
+We use a dialogue class to wrap a stage.
+
+Line 13 loads the UI from the fxml file.
+
+![Understand_javafx](.\images\Understand_javafx.PNG)
+
+fxml is a flavour of xml
+
+fx:controller attribute tell the run time which class is the controller for.
+
+When we load in the sample.fxml file, all of the UI objects are constructed.
+
+sample is the package and controller is the class.
 
 To load in an fxml file 
 
 ```
 Parent root = FXMLLoader.load(getClass().getResource("sample.fxml"));
 ```
+
+Since the window class is the parent of the stage class, the window title will be set to hello world.
+
+Only node in the sample.fxml is the gridpane so it is the root of the scene graph.
+
+The java developers were going for a theatre metaphor each stage requires a scene and backing each scene is a graph were each node corresponds to a UI control or an area of the scene.
+
+Parent classes decends directly from Node class which is the base class for scene graph nodes
+
+Nodes that descend from parent can have child in the scene graph eg. GridPane is the root of the scene graph.
+
+
+
+Stage is a top level Ui container whilst the scene is backed by a scene graph which contains the UI nodes. To change what is shown, we just need to change the scene.
 
 
 
