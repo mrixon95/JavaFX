@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/JavaFXcode/JavaFXcode.iml" filepath="$PROJECT_DIR$/JavaFXcode/JavaFXcode.iml" />
+      <module fileurl="file://$PROJECT_DIR$/Layouts/Layouts.iml" filepath="$PROJECT_DIR$/Layouts/Layouts.iml" />
+      <module fileurl="file://$PROJECT_DIR$/Layoutsreal/Layoutsreal.iml" filepath="$PROJECT_DIR$/Layoutsreal/Layoutsreal.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/TimBulchalkaCourseJava.iml" filepath="$PROJECT_DIR$/.idea/TimBulchalkaCourseJava.iml" />
+    </modules>
+  </component>
+</project>

@@ -586,9 +586,35 @@ Every Javafx control provide a default implementation of the Skinnable interface
 
 Text comes from the labelled class
 
+
+
+# Controls
+
+
+
+![Java_Look_and_Feel_Graphics_Repo](.\images\Java_Look_and_Feel_Graphics_Repo.PNG)
+
+
+
+Add JARs or directories
+
+![jars_or_directory](.\images\jars_or_directory.PNG)
+
+
+
+Project Structure -> Modules -> Adds Jars or 
+
 Add jar file called jifgr-1_0.jar. Renamed it to graphics.
 
+Find graphics in:
 
+jlfgr-1_0.jar -> toolbarButtonGraphics -> general 
+
+![buttons_in_package](.\images\buttons_in_package.PNG)
+
+
+
+Choose Classes so it adds the Jar to the class path.
 
 @ means going to the root
 
@@ -596,7 +622,7 @@ Add jar file called jifgr-1_0.jar. Renamed it to graphics.
 
 The text is cut off.
 
-
+Add a graphic child element to the Button element.
 
 ```
 <GridPane fx:controller="sample.Controller"
@@ -627,9 +653,25 @@ The text is cut off.
 Can set wrap text equal to true
 
 ```
-<Label GridPane.rowIndex="0" GridPane.columnIndex="1" text="This is a label This is a label This is a label"
-    textFill="blue" WrapText="true">
+<GridPane fx:controller="sample.Controller"
+          xmlns:fx="http://javafx.com/fxml" alignment="center" hgap="10" vgap="10">
+    <Label GridPane.rowIndex="0" GridPane.columnIndex="1" text="This is a label This is a label This is a label"
+           textFill="blue" wrapText="True">
+    <font>
+            <Font name="Arial italic" size="40"/>
+    </font>
+    </Label>
+</GridPane>
+    
 ```
+
+
+
+## Wrap text
+
+![wraptext](.\images\wraptext.PNG)
+
+
 
 
 
@@ -645,6 +687,8 @@ $ sign is for finding an fx id
 
 fx:define is for adding something not part of the scene graph. Use selected="True" for automatically selecting a radio button to true
 
+Only one radio button can be selected at a time
+
 ```
     <RadioButton GridPane.rowIndex="0" GridPane.columnIndex="2" text="Red" toggleGroup="$colorToggleGroup"/>
     <RadioButton GridPane.rowIndex="0" GridPane.columnIndex="3" text="Blue" toggleGroup="$colorToggleGroup" selected="True"/>
@@ -659,9 +703,25 @@ Can set one choice from a group of checkboxes.
 
 Radiobuttons descend from toggle button class.
 
+Toggle button node does not extend from scene graph so we have to use fx:define.
 
+For fx id, we need to use a $ sign.
 
 Toggle button is a control in its own right and stay down after being clicked.
+
+To make a button selected by default, use the selected property.
+
+
+
+Checkbox has two states. Either selected or not selected.
+
+You can enable the indeterminate state, which is a dash.
+
+
+
+Toggle button is like a regular button except when we press it, it stays down.
+
+To enable only one toggle button to be selected at a time, use a toggle group.
 
 ```
 <GridPane fx:controller="sample.Controller"
@@ -715,7 +775,116 @@ Textfield allows a user to type information in and perform action with the data.
 
 Textfield has copy, cut, paste
 
- PasswordField does not have copy and cut functionality
+ PasswordField does not have copy and cut functionality and masks itself. However, it inherits on textfield and looks very similar.
+
+
+
+Need packages
+
+We will populate the combo box with a list of strings
+
+```
+<ComboBox GridPane.rowIndex="1" GridPane.columnIndex="2">
+        <items>
+            <FXCollections fx:factory="observableArrayList">
+                <String fx:value="Option 1"/>
+                <String fx:value="Option 2"/>
+                <String fx:value="Option 3"/>
+                <String fx:value="Option 4"/>
+            </FXCollections>
+        </items>
+    </ComboBox>
+```
+
+
+
+
+
+<?import javafx.collections.FXCollections?>
+<?import javafx.collections.*?>
+<?import java.lang.String?>
+
+```
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.layout.GridPane?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.text.Font?>
+<?import javafx.scene.control.RadioButton?>
+<?import javafx.scene.control.ToggleGroup?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.control.CheckBox?>
+<?import javafx.scene.control.ToggleButton?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.PasswordField?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.collections.FXCollections?>
+<?import javafx.collections.*?>
+<?import java.lang.String?>
+<GridPane fx:controller="sample.Controller"
+          xmlns:fx="http://javafx.com/fxml" alignment="center" hgap="10" vgap="10">
+    <Label GridPane.rowIndex="0" GridPane.columnIndex="1" text="This is a label This is a label This is a label"
+           textFill="blue" wrapText="True">
+    <font>
+            <Font name="Arial italic" size="10"/>
+    </font>
+    </Label>
+
+    <fx:define>
+        <ToggleGroup fx:id="colorToggleGroup"/>
+    </fx:define>
+
+    <fx:define>
+        <ToggleGroup fx:id="colorToggleGroup2"/>
+    </fx:define>
+
+    <VBox GridPane.rowIndex="0" GridPane.columnIndex="2">
+        <RadioButton text="Red" toggleGroup="$colorToggleGroup"/>
+        <RadioButton text="Blue" toggleGroup="$colorToggleGroup" selected="True"/>
+        <RadioButton text="Green" toggleGroup="$colorToggleGroup"/>
+    </VBox>
+
+
+    <VBox GridPane.rowIndex="0" GridPane.columnIndex="5">
+        <CheckBox text="Dog" indeterminate="True"/>
+        <CheckBox text="Cat"/>
+        <CheckBox text="Bird"/>
+    </VBox>
+
+    <HBox GridPane.rowIndex="0" GridPane.columnIndex="6">
+        <ToggleButton text="Toggle Me" toggleGroup="$colorToggleGroup2"/>
+        <ToggleButton text="Toggle Me" toggleGroup="$colorToggleGroup2"/>
+        <ToggleButton text="Toggle Me" toggleGroup="$colorToggleGroup2"/>
+    </HBox>
+    <TextField GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+    <PasswordField GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+    <ComboBox GridPane.rowIndex="1" GridPane.columnIndex="2">
+        <items>
+            <FXCollections fx:factory="observableArrayList">
+                <String fx:value="Option 1"/>
+                <String fx:value="Option 2"/>
+                <String fx:value="Option 3"/>
+                <String fx:value="Option 4"/>
+            </FXCollections>
+        </items>
+    </ComboBox>
+
+</GridPane>
+```
+
+
+
+![combobox](.\images\combobox.PNG)
+
+
+
+
+
+
 
 
 
@@ -724,16 +893,32 @@ Use observable Array List to list out the values in a Combo box.
 To set a default, use
 
 ```
-<value>
-    <String fx:value="This is Option 4 This is Option 4"/>
-</value>
+<ComboBox GridPane.rowIndex="1" GridPane.columnIndex="2">
+        <items>
+            <FXCollections fx:factory="observableArrayList">
+                <String fx:value="Option 1"/>
+                <String fx:value="Option 2"/>
+                <String fx:value="Option 3"/>
+                <String fx:value="Option 4"/>
+            </FXCollections>
+        </items>
+        <value>
+            <String fx:value="Option 2"/>
+        </value>
+</ComboBox>
 ```
 
-
+![setdefault](.\images\setdefault.PNG)
 
 Can set editable property to true
 
 ``` editable="True"```
+
+
+
+![setEditableToTrue](.\images\setEditableToTrue.PNG)
+
+
 
 
 
@@ -754,6 +939,14 @@ Choicebox has a tick infront of it. Good for a small amount of items.
         </items>
     </ChoiceBox>
 ```
+
+
+
+![ChoiceboxTickInfront](.\images\ChoiceboxTickInfront.PNG)
+
+
+
+Combo box is good for a large number of items
 
 
 
@@ -782,7 +975,25 @@ Color picker
 
 
 
-Titled Pane is a control. We can add to it an accordion. Only lets one titled pane be open at a time. Cannot make it horizontal. $ sign to signify that it is an id
+Date picker
+
+
+
+![date_picker_and_colour_picker](.\images\date_picker_and_colour_picker.PNG)
+
+
+
+Titled Pane is a control and not a layout. We can add to it an accordion. Only lets one titled pane be open at a time. Cannot make it horizontal. $ sign to signify that it is an id
+
+Group of titled panes and one 1 can be open at any time.
+
+Assign id to one that is to be open.
+
+![Accordian_only_one_open](.\images\Accordian_only_one_open.PNG)
+
+
+
+
 
 ```
 <Accordion GridPane.rowIndex="3" GridPane.columnIndex="2" GridPane.columnSpan="2"
