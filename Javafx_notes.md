@@ -1017,7 +1017,17 @@ Check the documentation to see what is and isn't possible.
 
 
 
-It will run a function called an event handler
+# Event handlers
+
+
+
+When a control is interacted with it will run a function called an event handler.
+
+
+
+
+
+
 
 
 
@@ -1029,7 +1039,7 @@ Such as Intellij. One user may create a new project or open the settings dialogu
 
 Run initialisation code, build UI and then wait for input from the user. Application will run code based on the user event.
 
-
+Life cycle is that it builds the initialisation code, build main UI and wait for user input. Java application will run a particular event based on user input
 
 Java application thread know as the UI thread waits for User input.
 
@@ -1043,13 +1053,39 @@ Controller handles user input. Associate event handler with the button.
 
 UI thread checks whether there is an event handler. Our application listens for events hence the name EventHandler.
 
+Handling an event is sometimes referred to as listening for an event so EventHandlers are sometimes called eventListeners.
 
-
-We need to associate the textField in the controller class to the control in the fxml file.
+We need to associate the event handler with the button. Need to associate textField in the controller class to the control in the fxml file.
 
 Annotate textField declaration.
 
-Injected the reference to the textField into the name field variable.
+At runtime, the program injected the reference to the textField into the name field variable.
+
+
+
+![Textfieldhello](.\images\Textfieldhello.PNG)
+
+
+
+```
+<GridPane fx:controller="sample.Controller"
+          xmlns:fx="http://javafx.com/fxml" alignment="center" hgap="10" vgap="10">
+    <TextField fx:id="nameField" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+    <Button text="Say Hello" GridPane.rowIndex="0" GridPane.columnIndex="0" onAction="#onButtonClicked"/>
+</GridPane>
+```
+
+
+
+```
+@FXML
+private TextField nameField;
+
+@FXML
+public void onButtonClicked() {
+    System.out.println("Hello, " + nameField.getText());
+}
+```
 
 
 
@@ -1065,12 +1101,20 @@ Injected the reference to the textField into the name field variable.
 
 
 
+We can use the same event handler for different controls. Therefore, we need to pass through ActionEvent e as a paramter to know which one is whihc.
+
 Can add ActionEvent parameter to eventhandler. Can used get source to see where the event was started from
 
 ```
     @FXML
-    public void onButtonClicked(ActionEvent e) {
+    private TextField nameField;
+    @FXML
+    private Button helloButton;
+    @FXML
+    private Button byeButton;
 
+    @FXML
+    public void onButtonClicked(ActionEvent e) {
         if(e.getSource().equals(helloButton)) {
             System.out.println("Hello, " + nameField.getText());
         } else if (e.getSource().equals(byeButton)) {
@@ -1078,6 +1122,10 @@ Can add ActionEvent parameter to eventhandler. Can used get source to see where 
         }
     }
 ```
+
+
+
+![GetButtonSource](.\images\GetButtonSource.PNG)
 
 
 
@@ -1094,10 +1142,43 @@ disable buttons if there is no text. Run this function every time a button is pr
     public void handleKeyReleased() {
         String text = nameField.getText();
         boolean disabledButtons = text.isEmpty() || text.trim().isEmpty();
-        helloButton.setDisabled(disabledButtons);
-        byeButton.setDisabled(disabledButtons)
+        helloButton.setDisable(disabledButtons);
+        byeButton.setDisable(disabledButtons);
     }
 ```
+
+
+
+On initialisation, this method runs.
+
+```
+@FXML
+public void initalize() {
+hellobutton.setDisable(true);
+byebutton.setDisable(true);
+}
+```
+
+
+
+
+
+Associated eventhandler to textfield
+
+
+
+```
+<GridPane fx:controller="sample.Controller"
+          xmlns:fx="http://javafx.com/fxml" alignment="center" hgap="10" vgap="10">
+    <TextField fx:id="nameField" GridPane.rowIndex="1" GridPane.columnIndex="0" onKeyReleased="#handleKeyReleased"/>
+    <Button fx:id="helloButton" text="Say Hello" GridPane.rowIndex="0" GridPane.columnIndex="0" onAction="#onButtonClicked"/>
+    <Button fx:id="byeButton" text="Say Bye" GridPane.rowIndex="0" GridPane.columnIndex="1" onAction="#onButtonClicked"/>
+</GridPane>
+```
+
+
+
+![onButtonReleased](.\images\onButtonReleased.PNG)
 
 
 
@@ -1125,7 +1206,54 @@ public void handleChange() {
 
 
 
-Never expect users to be always predictable
+![cleartextfield](.\images\cleartextfield.PNG)
+
+
+
+```
+@FXML
+    public void initialize() {
+        helloButton.setDisable(true);
+        byeButton.setDisable(true);
+    }
+
+    @FXML
+    public void onButtonClicked(ActionEvent e) {
+        if(e.getSource().equals(helloButton)) {
+            System.out.println("Hello, " + nameField.getText());
+        } else if (e.getSource().equals(byeButton)) {
+            System.out.println("Bye, " + nameField.getText());
+        }
+
+        if(ourCheckbox.isSelected()) {
+            nameField.clear();
+            helloButton.setDisable(true);
+            byeButton.setDisable(true);
+
+        }
+
+    }
+
+    @FXML
+    public void handleKeyReleased() {
+        String text = nameField.getText();
+        boolean disabledButtons = text.isEmpty() || text.trim().isEmpty();
+        helloButton.setDisable(disabledButtons);
+        byeButton.setDisable(disabledButtons);
+    }
+
+    public void handleChange() {
+        System.out.println("The checkbox is " + (ourCheckbox.isSelected() ? "checked": "not checked"));
+    }
+```
+
+
+
+
+
+
+
+Never expect users to be always predictable. Write a lot of cases and verification.
 
 When an event is raised, an associated error is run.
 
@@ -1137,7 +1265,9 @@ Javafx 8 control docs
 
 195 UI thread
 
-UI Thread sits and waits for user input. 
+Event handler runs on UI thread. So when event handler runs, the UI thread is busy
+
+UI Thread sits and waits for user input. Application won't respond. 
 
 UI thread sees if the application is listening for that event and if so it dispatches the event to the event handler. Event handler will run on UI thread. Whilst an event handler is running, the UI is busy and is no longer paying attention to the user input. User can't interact with UI when it is busy. 
 
@@ -1158,6 +1288,34 @@ Whenever we want to work with nodes on the scene graph, we actually must do so o
 Will use the run later method, going to put the runnable thread on a queue. Forces the runnable object to run on a UI thread.
 
 
+
+![UI_becomes_not_responsive](.\images\UI_becomes_not_responsive.PNG)
+
+
+
+
+
+```
+try {
+    Thread.sleep(15000);
+} catch (InterruptedException ex) {
+    //
+}
+```
+
+
+
+EventHandler running on the UI thread isn't optimal.
+
+The event handler should start another thread if it takes a long time.
+
+The event handler, running on the UI thread should be able to return so the UI can listen to user input again. The thread that is kicked off is called the background thread.
+
+Update the label after 10 seconds.
+
+Start the background thread using new Thread(task).start();
+
+UI thread will continue as normal.
 
 ```
 @FXML
@@ -1203,7 +1361,23 @@ public void onButtonClicked(ActionEvent e) {
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 Background threads and UI threads
+
+To ensure it is being run on the UI thread use Platform.runLater
 
 ```
 Runnable task = new Runnable() {
@@ -1338,3 +1512,506 @@ Should probably use a database.
 Delimiter is tab.
 
 Can't instantiate the class from outside.
+
+
+
+# Base Interface
+
+
+
+## Controller
+
+```
+public class Controller {
+
+    private List<ToDoItem> toDoItems;
+
+    @FXML
+    private ListView todoListView;
+
+    public void initialize() {
+        ToDoItem item1 = new ToDoItem("Mail birthday card", "Buy a 30th birthday card for John",
+                LocalDate.of(2016, Month.APRIL, 25));
+        ToDoItem item2 = new ToDoItem("Doctor's Appointment", "See Dr. Smith at 123 Main Street. Bring paperwork",
+                LocalDate.of(2016, Month.MAY, 23));
+        ToDoItem item3 = new ToDoItem("Finish design proposal for client", "I promise Mike I'd email website mockups by Friday 22nd April",
+                LocalDate.of(2016, Month.APRIL, 22));
+        ToDoItem item4 = new ToDoItem("Pickup Doug at the train", "Doug's arriving on March",
+                LocalDate.of(2016, Month.MARCH, 23));
+        ToDoItem item5 = new ToDoItem("Pick up dry cleaning", "The clothes should be ready by Wednesday",
+                LocalDate.of(2016, Month.APRIL, 20));
+
+        toDoItems = new ArrayList<ToDoItem>();
+        toDoItems.add(item1);
+        toDoItems.add(item2);
+        toDoItems.add(item3);
+        toDoItems.add(item4);
+        toDoItems.add(item5);
+
+        todoListView.getItems().setAll(toDoItems);
+        todoListView.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
+
+
+    }
+
+}
+```
+
+
+
+## sample.fxml
+
+```
+<BorderPane fx:controller="sample.Controller"
+            xmlns:fx="http://javafx.com/fxml">
+    <left>
+        <ListView fx:id="todolist">
+
+        </ListView>
+    </left>
+</BorderPane>
+```
+
+
+
+We want the details to take up all of the left over space.
+
+The selection model tracks what item is selected
+
+
+
+Give the textarea as much rom as possible.
+
+```
+<TextArea fx:id="itemDetailsTextArea" VBox.vgrow="ALWAYS"/>
+```
+
+
+
+
+
+
+
+
+
+
+
+## Code up to 200 Formatting Dates
+
+```
+public class Controller {
+
+    private List<ToDoItem> toDoItems;
+
+    @FXML
+    private ListView<ToDoItem> todoListView;
+
+    @FXML
+    private TextArea itemDetailsTextArea;
+
+    @FXML
+    private Label deadlineLabel;
+
+
+    public void initialize() {
+        ToDoItem item1 = new ToDoItem("Mail birthday card", "Buy a 30th birthday card for John",
+                LocalDate.of(2016, Month.APRIL, 25));
+        ToDoItem item2 = new ToDoItem("Doctor's Appointment", "See Dr. Smith at 123 Main Street. Bring paperwork",
+                LocalDate.of(2016, Month.MAY, 23));
+        ToDoItem item3 = new ToDoItem("Finish design proposal for client", "I promise Mike I'd email website mockups by Friday 22nd April",
+                LocalDate.of(2016, Month.APRIL, 22));
+        ToDoItem item4 = new ToDoItem("Pickup Doug at the train", "Doug's arriving on March",
+                LocalDate.of(2016, Month.MARCH, 23));
+        ToDoItem item5 = new ToDoItem("Pick up dry cleaning", "The clothes should be ready by Wednesday",
+                LocalDate.of(2016, Month.APRIL, 20));
+
+        toDoItems = new ArrayList<ToDoItem>();
+        toDoItems.add(item1);
+        toDoItems.add(item2);
+        toDoItems.add(item3);
+        toDoItems.add(item4);
+        toDoItems.add(item5);
+
+
+        // make sure first item is selected in the todo list when the applicaiton is run
+
+        // listen for changes in the selected item property and run this code
+        // event handlers are also called event listeners since they listen out foir changes
+        // veyr common to use lambda expressions
+        todoListView.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<ToDoItem>() {
+            @Override
+            public void changed(ObservableValue<? extends ToDoItem> observableValue, ToDoItem oldValue, ToDoItem newValue) {
+                if(newValue != null) {
+                    ToDoItem item = todoListView.getSelectionModel().getSelectedItem();
+                    itemDetailsTextArea.setText(item.getDetails());
+                    deadlineLabel.setText(item.getDeadline().toString());
+                }
+            }
+        });
+
+        todoListView.getItems().setAll(toDoItems);
+        todoListView.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
+        todoListView.getSelectionModel().selectFirst();
+
+    }
+
+//    @FXML
+//    public void handleClickListView() {
+//        ToDoItem item = todoListView.getSelectionModel().getSelectedItem();
+//        //System.out.println("The selected item is " + item);
+////        itemDetailsTextArea.setText(item.getDetails());
+////        StringBuilder sb = new StringBuilder(item.getDetails());
+////        sb.append("\n\n\n\n");
+////        sb.append("Due: ");
+////        sb.append(item.getDeadline());
+////        itemDetailsTextArea.setText(sb.toString());
+//
+//        itemDetailsTextArea.setText(item.getDetails());
+//        deadlineLabel.setText(item.getDeadline().toString());
+//
+//
+//    }
+
+
+
+}
+```
+
+
+
+
+
+```
+<BorderPane fx:controller="sample.Controller"
+            xmlns:fx="http://javafx.com/fxml">
+    <left>
+        <ListView fx:id="todoListView">
+
+        </ListView>
+    </left>
+
+    <center>
+        <VBox style="-fx-background-color: white">
+        <TextArea fx:id="itemDetailsTextArea" VBox.vgrow="ALWAYS"/>
+            <HBox>
+                <Label text="Due: " style="-fx-background-color: white">
+                    <font>
+                        <Font name="Times New Roman bold" size="20"/>
+                    </font>
+                </Label>
+                <Label fx:id="deadlineLabel" text="Due: " style="-fx-background-color: white">
+                    <font>
+                        <Font name="Times New Roman bold" size="20"/>
+                    </font>
+                </Label>
+
+
+            </HBox>
+        </VBox>
+    </center>
+
+</BorderPane>
+```
+
+
+
+
+
+### Can use date formatter
+
+![DateFormatter](.\images\DateFormatter.PNG)
+
+
+
+```
+todoListView.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<ToDoItem>() {
+            @Override
+            public void changed(ObservableValue<? extends ToDoItem> observableValue, ToDoItem oldValue, ToDoItem newValue) {
+                if(newValue != null) {
+                    ToDoItem item = todoListView.getSelectionModel().getSelectedItem();
+                    itemDetailsTextArea.setText(item.getDetails());
+                    DateTimeFormatter df = DateTimeFormatter.ofPattern("MMMM dd, yyyy");
+                    // DateTimeFormatter df = DateTimeFormatter.ofPattern("d M yy");
+                    deadlineLabel.setText(df.format(item.getDeadline()));
+                }
+            }
+        });
+```
+
+
+
+
+
+
+
+```
+todoListView.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<ToDoItem>() {
+            @Override
+            public void changed(ObservableValue<? extends ToDoItem> observableValue, ToDoItem oldValue, ToDoItem newValue) {
+                if(newValue != null) {
+                    ToDoItem item = todoListView.getSelectionModel().getSelectedItem();
+                    itemDetailsTextArea.setText(item.getDetails());
+                    DateTimeFormatter df = DateTimeFormatter.ofPattern("MMMM dd, yyyy");
+                    // DateTimeFormatter df = DateTimeFormatter.ofPattern("d M yy");
+                    deadlineLabel.setText(df.format(item.getDeadline()));
+                }
+            }
+        });
+
+        todoListView.getItems().setAll(TodoData.getInstance().getTodoItems());
+        todoListView.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
+        todoListView.getSelectionModel().selectFirst();
+```
+
+
+
+Override the stop method 
+
+
+
+
+
+Add a singleton class - only one instance of the class is created over run of application. It can be accessed by the controller and the main class. Private constructor makes sure no more than one instance is created.
+
+Usually contains static method allows for getting the single instance and its methods.
+
+
+
+Store the data using the stop method to a flat file.
+
+
+
+TodoData singleton class.
+
+Add singleton class to datamodel package.
+
+Use getinstance method to get reference it
+
+![ToDoDataClass](.\images\ToDoDataClass.PNG)
+
+
+
+```
+public class TodoData {
+
+    private static TodoData instance = new TodoData();
+    private static String filename = "TodoListItems.txt";
+    private List<ToDoItem> todoItems;
+    private DateTimeFormatter formatter;
+
+    public static TodoData getInstance() {
+        return instance;
+    }
+
+    private TodoData() {
+        formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
+
+    }
+
+    public List<ToDoItem> getTodoItems() {
+        return todoItems;
+    }
+
+
+    public void loadTodoItems() throws IOException {
+        todoItems = FXCollections.observableArrayList();
+        Path path = Paths.get(filename);
+
+        BufferedReader br = Files.newBufferedReader(path);
+
+        String input;
+
+        try {
+            while ((input = br.readLine()) != null) {
+                String[] itemPieces = input.split("\t");
+
+                String shortDescription = itemPieces[0];
+                String details = itemPieces[1];
+                String dateString = itemPieces[2];
+
+                LocalDate date = LocalDate.parse(dateString, formatter);
+
+                ToDoItem todoItem = new ToDoItem(shortDescription, details, date);
+                todoItems.add(todoItem);
+            }
+
+        } finally {
+            if (br != null) {
+                br.close();
+            }
+        }
+
+
+
+    }
+
+
+    public void storeToDoItems() throws IOException {
+
+        Path path = Paths.get(filename);
+        BufferedWriter bw = Files.newBufferedWriter(path);
+        try {
+            Iterator<ToDoItem> iter = todoItems.iterator();
+            while (iter.hasNext()) {
+                ToDoItem item = iter.next();
+                bw.write(String.format("%s\t%s\t%s",
+                        item.getShortDescription(),
+                        item.getDetails(),
+                        item.getDeadline().format(formatter)));
+                bw.newLine();
+            }
+
+        } finally {
+            if (bw != null) {
+                bw.close();
+            }
+        }
+
+    }
+
+
+
+}
+
+```
+
+
+
+
+
+We use an ObservableArrayList because the code todoListView.getItems().setAll(toDoItems);
+
+setAll command can only be used on an ObservableArrayList.
+
+
+
+![ObservableArrayList](.\images\ObservableArrayList.PNG)
+
+
+
+The stop method runs when the user exists the application
+
+![ToDoItemTextFile](.\images\ToDoItemTextFile.PNG)
+
+
+
+Create new fxml file and new controller for it.
+
+Want dialogue to be model so that the user can't use anything else in the UI.
+
+Need to exit the dialogue before the rest of the UI becomes active.
+
+DialogPane is a layout for dialogs and lets us set the header, graphics, content and buttons
+
+Has header and content string.
+
+Header proiperty is a string proerpty
+
+Add eventhandler to the controller class
+
+Assign an id to the borderpane so we can use it in the controller.
+
+Set the dialogue owner or parent to the window it was open from. This is good practice.
+
+Owner must be of type window. We can refer to it in the controller
+
+```
+dialog.initOwner(mainBorderPane.getScene().getWindow());
+```
+
+Dialogues have a dialogue pane so lets set it 
+
+```
+dialog.getDialogPane().setContent(root);
+```
+
+
+
+When a user presses file and new we want our new dialogue to pop up.
+
+Add butttons to the dialogue pane.
+
+
+
+Show method returns immediately after showing the dialogue.
+
+But we want the event handler to be suspended whilst the user interacts with the dialogue.
+
+We want the showandwait method to suspend the eventhandler until a response is given.
+
+
+
+Associated event handler with the control in the fxml file
+
+Use the selection model to select the newly added item.
+
+```
+todoListView.getSelectionModel().select(newItem);
+```
+
+
+
+Databinding is when a control knows when its data changes. JavaFX developers have written code for this.
+
+When items are added or deleted from the collection the controller will change what is shown on the screen.
+
+
+
+Callback
+
+
+
+We need to provide the call back or the method that the list view wants to call each time it wants to paint one of its cells.
+
+
+
+Cell Factory
+
+![CellFactory](.\images\CellFactory.PNG)
+
+Override updateItem method. This method will run whenever the list view wants to paint a cell.
+
+
+
+oding the edit case is very similar to the add case.
+
+
+
+Context menu depending on what is selected.
+
+
+
+Use confirmation dialogue to confirm which item to delete.
+
+
+
+We use databinding. The list knows that something had changed and updates accoridngly.
+
+
+
+For a window modal dialog, if you set an owner, the dialog will block input for the owner stage and the user won't be able to close the owner stage without first closing the child.
+
+If the window model dialog does not have an owner, the user can easily switch between a field in the owner dialog until the child dialog is closed.
+
+
+
+When a key is pressed, a key event can be raised and the key event handler associated with the text field is called.
+
+
+
+Tooltip property expects to be assigned a instance of the tooltip class, not a string. It tries to convert the string into a tooltip but can't.
+
+
+
+Generally we start with a capital letter when we define a class and start with lowercase for properties.
+
+
+
+
+
+GridPane lays out child components in a grid. TilePane makes all tiles the same size.
+
+When adding new components to a GridPane, you specify the row and column to insert the component and the span.
+
+
+

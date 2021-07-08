@@ -1,0 +1,5 @@
+Mail birthday card	Buy a 30th birthday card for John	25-04-2016
+Doctor's Appointment	See Dr. Smith at 123 Main Street. Bring paperwork	23-05-2016
+A new todo item	This is my new item	08-07-2021
+A second todo item	Let's chat about this item	09-07-2021
+Deadline is today	Here's a Todo with a deadline for today	07-07-2021
