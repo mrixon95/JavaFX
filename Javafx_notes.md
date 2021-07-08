@@ -24,7 +24,7 @@ Click on project structure -> global libraries -> right click JavaFX-11 -> add t
 
 Note: There should be an *Add to modules* option if not already selected.
 
-![Add_to_modules](.\images\Add_to_modules.PNG)
+![Add_to_modules](./images/Add_to_modules.PNG)
 
 
 
@@ -34,7 +34,7 @@ Add a module-info.java file so we have defined javafx controller.
 
 
 
-![Add_module_info](.\images\Add_module_info.PNG)
+![Add_module_info](./images/Add_module_info.PNG)
 
 
 
@@ -55,7 +55,7 @@ module Tim.Bulchalka.course {
 
 // sample is the package names
 
-![Required_packages](.\images\Required_packages.PNG)
+![Required_packages](./images/Required_packages.PNG)
 
 
 
@@ -79,7 +79,7 @@ We use a dialogue class to wrap a stage.
 
 Line 13 loads the UI from the fxml file.
 
-![Understand_javafx](.\images\Understand_javafx.PNG)
+![Understand_javafx](./images/Understand_javafx.PNG)
 
 fxml is a flavour of xml
 
@@ -121,7 +121,7 @@ root.setVgap(10)
 root.setHgap(10);
 ```
 
-![setThingsManuallyWithCode](D:\Files\Udemy\TimBulchalkaCourseJava\images\setThingsManuallyWithCode.PNG)
+![setThingsManuallyWithCode](./images/setThingsManuallyWithCode.PNG)
 
 Set greeting. Add the label to thre pane by using the get children method which returned a list of the children. No shortcut.
 
@@ -163,7 +163,7 @@ We will focus on fxml route. Best practice to define UI through fxml.
 
 Don't need to touch code when change fxml.
 
-![LabelandFontFXML](D:\Files\Udemy\TimBulchalkaCourseJava\images\LabelandFontFXML.PNG)
+![LabelandFontFXML](./images/LabelandFontFXML.PNG)
 
 
 
@@ -205,7 +205,7 @@ Default position is column 0 row 0.
 
 
 
-![GridPanepositioning](D:\Files\Udemy\TimBulchalkaCourseJava\images\GridPanepositioning.PNG)
+![GridPanepositioning](./images/GridPanepositioning.PNG)
 
 
 
@@ -244,7 +244,7 @@ Ordering matters!
 
 
 
-![column_and_row_contraints](.\images\column_and_row_contraints.PNG)
+![column_and_row_contraints](./images/column_and_row_contraints.PNG)
 
 
 
@@ -278,7 +278,7 @@ Change Button alignment
           xmlns:fx="http://javafx.com/fxml" alignment="top_center" hgap="10" vgap="10" gridLinesVisible="true">
 ```
 
-![column_and_row_contraints](.\images\column_and_row_contraints.PNG)
+![column_and_row_contraints](./images/column_and_row_contraints.PNG)
 
 
 
@@ -356,7 +356,7 @@ spacing="10">
 
 BorderPane places controls in 1 of 5 positions: Top, Bottom, Left, Right, Center
 
-![borderpanelayout](.\images\borderpanelayout.PNG)
+![borderpanelayout](./images/borderpanelayout.PNG)
 
 
 
@@ -475,7 +475,7 @@ If the controls in the top, bottom, left and right positions weren't already at 
 
 Anchor pane anchor children to the edges. Eg. a title to the top of the pane, a hbox with buttons to the bottom.
 
-![FlowPanetrystofit](D:\Files\Udemy\TimBulchalkaCourseJava\images\FlowPanetrystofit.PNG)
+![FlowPanetrystofit](./images/FlowPanetrystofit.PNG)
 
 FlowPane layout wraps its children to the next row when the orientation is set to horizontal.
 
@@ -501,7 +501,7 @@ VBox stacks the buttons vertically and cuts them off when the screen becomes sma
 
 
 
-![VBox_cuts_off](D:\Files\Udemy\TimBulchalkaCourseJava\images\VBox_cuts_off.PNG)
+![VBox_cuts_off](./images/VBox_cuts_off.PNG)
 
 
 
@@ -517,13 +517,13 @@ TilePane is similar to a flowpane but every cell or tile has the same size
 
 
 
-![FlowPaneChildrenWidthsAreDifferent](.\images\FlowPaneChildrenWidthsAreDifferent.PNG)
+![FlowPaneChildrenWidthsAreDifferent](./images/FlowPaneChildrenWidthsAreDifferent.PNG)
 
 
 
 Each tile has the width of the largest button. Buttons are centered in each cell.
 
-![Eachcellallocatedsamewidth](.\images\Eachcellallocatedsamewidth.PNG)
+![Eachcellallocatedsamewidth](./images/Eachcellallocatedsamewidth.PNG)
 
 
 
@@ -547,7 +547,7 @@ The order in which we add the controls to the fxml will determine the order of t
 
 
 
-![StackPane](.\images\StackPane.PNG)
+![StackPane](./images/StackPane.PNG)
 
 
 
@@ -566,7 +566,7 @@ The order in which we add the controls to the fxml will determine the order of t
 
 To know properties that can be set on a control, go to the docs https://docs.oracle.com/javase/8/javafx/api/javafx/scene/control/Button.html
 
-![Node_Base_Class](D:\Files\Udemy\TimBulchalkaCourseJava\images\Node_Base_Class.PNG)
+![Node_Base_Class](./images/Node_Base_Class.PNG)
 
 
 
@@ -592,13 +592,13 @@ Text comes from the labelled class
 
 
 
-![Java_Look_and_Feel_Graphics_Repo](.\images\Java_Look_and_Feel_Graphics_Repo.PNG)
+![Java_Look_and_Feel_Graphics_Repo](./images/Java_Look_and_Feel_Graphics_Repo.PNG)
 
 
 
 Add JARs or directories
 
-![jars_or_directory](.\images\jars_or_directory.PNG)
+![jars_or_directory](./images/jars_or_directory.PNG)
 
 
 
@@ -610,7 +610,7 @@ Find graphics in:
 
 jlfgr-1_0.jar -> toolbarButtonGraphics -> general 
 
-![buttons_in_package](.\images\buttons_in_package.PNG)
+![buttons_in_package](./images/buttons_in_package.PNG)
 
 
 
@@ -669,7 +669,7 @@ Can set wrap text equal to true
 
 ## Wrap text
 
-![wraptext](.\images\wraptext.PNG)
+![wraptext](./images/wraptext.PNG)
 
 
 
@@ -878,7 +878,7 @@ We will populate the combo box with a list of strings
 
 
 
-![combobox](.\images\combobox.PNG)
+![combobox](./images/combobox.PNG)
 
 
 
@@ -908,7 +908,7 @@ To set a default, use
 </ComboBox>
 ```
 
-![setdefault](.\images\setdefault.PNG)
+![setdefault](./images/setdefault.PNG)
 
 Can set editable property to true
 
@@ -916,7 +916,7 @@ Can set editable property to true
 
 
 
-![setEditableToTrue](.\images\setEditableToTrue.PNG)
+![setEditableToTrue](./images/setEditableToTrue.PNG)
 
 
 
@@ -942,7 +942,7 @@ Choicebox has a tick infront of it. Good for a small amount of items.
 
 
 
-![ChoiceboxTickInfront](.\images\ChoiceboxTickInfront.PNG)
+![ChoiceboxTickInfront](./images/ChoiceboxTickInfront.PNG)
 
 
 
@@ -979,7 +979,7 @@ Date picker
 
 
 
-![date_picker_and_colour_picker](.\images\date_picker_and_colour_picker.PNG)
+![date_picker_and_colour_picker](./images/date_picker_and_colour_picker.PNG)
 
 
 
@@ -989,7 +989,7 @@ Group of titled panes and one 1 can be open at any time.
 
 Assign id to one that is to be open.
 
-![Accordian_only_one_open](.\images\Accordian_only_one_open.PNG)
+![Accordian_only_one_open](./images/Accordian_only_one_open.PNG)
 
 
 
@@ -1063,7 +1063,7 @@ At runtime, the program injected the reference to the textField into the name fi
 
 
 
-![Textfieldhello](.\images\Textfieldhello.PNG)
+![Textfieldhello](./images/Textfieldhello.PNG)
 
 
 
@@ -1125,7 +1125,7 @@ Can add ActionEvent parameter to eventhandler. Can used get source to see where 
 
 
 
-![GetButtonSource](.\images\GetButtonSource.PNG)
+![GetButtonSource](./images/GetButtonSource.PNG)
 
 
 
@@ -1178,7 +1178,7 @@ Associated eventhandler to textfield
 
 
 
-![onButtonReleased](.\images\onButtonReleased.PNG)
+![onButtonReleased](./images/onButtonReleased.PNG)
 
 
 
@@ -1206,7 +1206,7 @@ public void handleChange() {
 
 
 
-![cleartextfield](.\images\cleartextfield.PNG)
+![cleartextfield](./images/cleartextfield.PNG)
 
 
 
@@ -1289,7 +1289,7 @@ Will use the run later method, going to put the runnable thread on a queue. Forc
 
 
 
-![UI_becomes_not_responsive](.\images\UI_becomes_not_responsive.PNG)
+![UI_becomes_not_responsive](./images/UI_becomes_not_responsive.PNG)
 
 
 
@@ -1719,7 +1719,7 @@ public class Controller {
 
 ### Can use date formatter
 
-![DateFormatter](.\images\DateFormatter.PNG)
+![DateFormatter](./images/DateFormatter.PNG)
 
 
 
@@ -1787,7 +1787,7 @@ Add singleton class to datamodel package.
 
 Use getinstance method to get reference it
 
-![ToDoDataClass](.\images\ToDoDataClass.PNG)
+![ToDoDataClass](./images/ToDoDataClass.PNG)
 
 
 
