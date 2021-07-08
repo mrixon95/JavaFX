@@ -1891,7 +1891,7 @@ setAll command can only be used on an ObservableArrayList.
 
 The stop method runs when the user exists the application
 
-![ToDoItemTextFile](.\images\ToDoItemTextFile.PNG)
+![ToDoItemTextFile](./images/ToDoItemTextFile.PNG)
 
 
 
@@ -1967,7 +1967,7 @@ We need to provide the call back or the method that the list view wants to call 
 
 Cell Factory
 
-![CellFactory](.\images\CellFactory.PNG)
+![CellFactory](./images/CellFactory.PNG)
 
 Override updateItem method. This method will run whenever the list view wants to paint a cell.
 
