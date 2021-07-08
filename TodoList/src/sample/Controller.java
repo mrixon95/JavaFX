@@ -1,7 +1,9 @@
 package sample;
 
+import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
+import javafx.collections.transformation.FilteredList;
 import javafx.collections.transformation.SortedList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
@@ -26,6 +28,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Predicate;
 
 public class Controller {
 
@@ -45,6 +48,15 @@ public class Controller {
 
     @FXML
     private ContextMenu listContextMenu;
+
+    @FXML
+    private ToggleButton filterToggleButton;
+
+    private FilteredList<ToDoItem> filteredList;
+
+    private Predicate<ToDoItem> wantAllItems;
+
+    private Predicate<ToDoItem> wantTodaysItems;
 
 
     public void initialize() {
@@ -85,7 +97,42 @@ public class Controller {
 
         // pass in the list to be sorted and the anonymous compare function which tells the sorted list how to
         // order the two items.
-        SortedList<ToDoItem> sortedList = new SortedList<ToDoItem>(TodoData.getInstance().getTodoItems(),
+        // For the parameters, get the observable list and write the comparator as an anonymous class
+        // pass in the two TodoItems to compare and write a method to compared them.
+
+        // use a predicate for filtering items in a list
+        // the test method will called on every item in the list past to it.
+        // if test returns false then the item is not kept
+        // if test return true then the item is kept
+
+        // then pass the filtered list to the sorted list
+
+
+
+        wantAllItems = new Predicate<ToDoItem>() {
+
+            @Override
+            public boolean test(ToDoItem toDoItem) {
+                return true;
+            }
+        };
+
+        wantTodaysItems = new Predicate<ToDoItem>() {
+
+            @Override
+            public boolean test(ToDoItem toDoItem) {
+                return (toDoItem.getDeadline().equals(LocalDate.now()));
+            }
+        };
+
+
+
+
+        filteredList = new FilteredList<ToDoItem>(TodoData.getInstance().getTodoItems(),
+                wantAllItems);
+
+        // the filtered list is being passed
+        SortedList<ToDoItem> sortedList = new SortedList<ToDoItem>(filteredList,
                 new Comparator<ToDoItem>() {
                 @Override
                     public int compare(ToDoItem o1, ToDoItem o2) {
@@ -95,6 +142,8 @@ public class Controller {
         });
 
         //todoListView.setItems(TodoData.getInstance().getTodoItems());
+
+        // bind the list view to the observable list in the data class
         todoListView.setItems(sortedList);
         todoListView.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
         todoListView.getSelectionModel().selectFirst();
@@ -211,6 +260,36 @@ public class Controller {
             TodoData.getInstance().deleteToDoItem(item);
         }
 
+    }
+
+    @FXML
+    public void handleFilterButton() {
+        // when the button isn't selected we want to show all items
+        // when the button is selected we want to show items due today
+
+        ToDoItem selectedItem = todoListView.getSelectionModel().getSelectedItem();
+
+        if(filterToggleButton.isSelected()) {
+            filteredList.setPredicate(wantTodaysItems);
+            if(filteredList.isEmpty()) {
+                itemDetailsTextArea.clear();
+                deadlineLabel.setText("");
+            } else if (filteredList.contains(selectedItem)) {
+                todoListView.getSelectionModel().select(selectedItem);
+            } else {
+                todoListView.getSelectionModel().selectFirst();
+            }
+        } else {
+            filteredList.setPredicate(wantAllItems);
+            todoListView.getSelectionModel().select(selectedItem);
+
+        }
+
+    }
+
+    @FXML
+    public void handleExit() {
+        Platform.exit();
     }
 
 

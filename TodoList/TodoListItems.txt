@@ -3,3 +3,5 @@ Doctor's Appointment	See Dr. Smith at 123 Main Street. Bring paperwork	23-05-201
 A new todo item	This is my new item	08-07-2021
 A second todo item	Let's chat about this item	09-07-2021
 Deadline is today	Here's a Todo with a deadline for today	07-07-2021
+Today's todo	Today	08-07-2021
+Not today	This item is not due today	16-07-2021

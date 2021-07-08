@@ -1971,6 +1971,52 @@ Cell Factory
 
 Override updateItem method. This method will run whenever the list view wants to paint a cell.
 
+Each item in the listview is in a cell. We can customise how those cells look by using the setCellFactory method to assign a custom cell factory. The default cell factory sets the text to whatever the item to string method returns
+
+ 
+
+```
+todoListView.setCellFactory(new Callback<ListView<ToDoItem>, ListCell<ToDoItem>>() {
+            @Override
+            public ListCell<ToDoItem> call(ListView<ToDoItem> toDoItemListView) {
+                ListCell<ToDoItem> cell = new ListCell<ToDoItem>() {
+
+                    @Override
+                    protected void updateItem(ToDoItem item, boolean empty) {
+                        super.updateItem(item, empty);
+                        // if the cell is empty
+                        if(empty) {
+                            setText(null);
+                        } else {
+                            setText(item.getShortDescription());
+                            if(item.getDeadline().isBefore(LocalDate.now().plusDays(1))) {
+                                setTextFill(Color.RED);
+                            } else if(item.getDeadline().equals(LocalDate.now().plusDays(1))) {
+                                setTextFill(Color.YELLOW);
+                            }
+                        }
+                    }
+                };
+
+                cell.emptyProperty().addListener(
+                        (obs, wasEmpty, isNowEmpty) -> {
+                            if(isNowEmpty) {
+                                cell.setContextMenu(null);
+                            } else {
+                                cell.setContextMenu(listContextMenu);
+                            }
+                        }
+                );
+
+                return cell;
+            }
+        });
+```
+
+
+
+We pass an anonymous class which using the class back interface. It has two parameters, the 
+
 
 
 oding the edit case is very similar to the add case.
@@ -1985,7 +2031,15 @@ Use confirmation dialogue to confirm which item to delete.
 
 
 
-We use databinding. The list knows that something had changed and updates accoridngly.
+
+
+We use databinding. The list knows that something had changed and updates accordingly.
+
+Java Developers have written code to handle the changes.
+
+When it
+
+
 
 
 
@@ -2014,4 +2068,667 @@ GridPane lays out child components in a grid. TilePane makes all tiles the same 
 When adding new components to a GridPane, you specify the row and column to insert the component and the span.
 
 
+
+```
+
+```
+
+FX Collections has utility methods that are optimised to reduce the number of notifcations that are raised when the collection is changed.that are raised
+
+
+
+Create a Context Menu with a delete item.
+
+Give an Alert so that we can confirm the deletion.
+
+Need to set the title text, header text and context text.
+
+some of the properties will be set for us. eg. an OKay and cancel button will be automatically created for a confirmation alert.
+
+
+
+WE have associated the handler to the context menu and written the code for the handler. We need to now associate the context menu with the listview.
+
+Click on a control to bring it into focus.
+
+When a key is pressed, a key event is raised. A key handler can be used to handle that key event.
+
+
+
+
+
+We need to provide the sorted list with a comparator so that it knows how to sort the ToDoItems.
+
+
+
+/sample
+
+- datamodel/
+  	- TodoData
+  	- ToDoItem
+	- Controller
+	- DialogueController
+	- Main
+	- sample.fxml
+	- todoItemDialog.fxml
+
+
+
+### Controller 
+
+```
+public class Controller {
+
+    private List<ToDoItem> toDoItems;
+
+    @FXML
+    private ListView<ToDoItem> todoListView;
+
+    @FXML
+    private TextArea itemDetailsTextArea;
+
+    @FXML
+    private Label deadlineLabel;
+
+    @FXML
+    private BorderPane mainBorderPane;
+
+    @FXML
+    private ContextMenu listContextMenu;
+
+    @FXML
+    private ToggleButton filterToggleButton;
+
+    private FilteredList<ToDoItem> filteredList;
+
+    private Predicate<ToDoItem> wantAllItems;
+
+    private Predicate<ToDoItem> wantTodaysItems;
+
+
+    public void initialize() {
+
+
+        // make sure first item is selected in the todo list when the applicaiton is run
+
+        // listen for changes in the selected item property and run this code
+        // event handlers are also called event listeners since they listen out foir changes
+        // veyr common to use lambda expressions
+
+        listContextMenu = new ContextMenu();
+        MenuItem deleteMenuItem = new MenuItem("Delete");
+        deleteMenuItem.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                ToDoItem item = todoListView.getSelectionModel().getSelectedItem();
+                deleteItem(item);
+            }
+        });
+
+        // Add the delete item to the content menu
+        listContextMenu.getItems().addAll(deleteMenuItem);
+
+
+        todoListView.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<ToDoItem>() {
+            @Override
+            public void changed(ObservableValue<? extends ToDoItem> observableValue, ToDoItem oldValue, ToDoItem newValue) {
+                if (newValue != null) {
+                    ToDoItem item = todoListView.getSelectionModel().getSelectedItem();
+                    itemDetailsTextArea.setText(item.getDetails());
+                    DateTimeFormatter df = DateTimeFormatter.ofPattern("MMMM dd, yyyy");
+                    // DateTimeFormatter df = DateTimeFormatter.ofPattern("d M yy");
+                    deadlineLabel.setText(df.format(item.getDeadline()));
+                }
+            }
+        });
+
+        // pass in the list to be sorted and the anonymous compare function which tells the sorted list how to
+        // order the two items.
+        // For the parameters, get the observable list and write the comparator as an anonymous class
+        // pass in the two TodoItems to compare and write a method to compared them.
+
+        // use a predicate for filtering items in a list
+        // the test method will called on every item in the list past to it.
+        // if test returns false then the item is not kept
+        // if test return true then the item is kept
+
+        // then pass the filtered list to the sorted list
+
+
+
+        wantAllItems = new Predicate<ToDoItem>() {
+
+            @Override
+            public boolean test(ToDoItem toDoItem) {
+                return true;
+            }
+        };
+
+        wantTodaysItems = new Predicate<ToDoItem>() {
+
+            @Override
+            public boolean test(ToDoItem toDoItem) {
+                return (toDoItem.getDeadline().equals(LocalDate.now()));
+            }
+        };
+
+
+
+
+        filteredList = new FilteredList<ToDoItem>(TodoData.getInstance().getTodoItems(),
+                wantAllItems);
+
+        // the filtered list is being passed
+        SortedList<ToDoItem> sortedList = new SortedList<ToDoItem>(filteredList,
+                new Comparator<ToDoItem>() {
+                @Override
+                    public int compare(ToDoItem o1, ToDoItem o2) {
+                        // compare the two values of the dates
+                        return o1.getDeadline().compareTo(o2.getDeadline());
+                }
+        });
+
+        //todoListView.setItems(TodoData.getInstance().getTodoItems());
+
+        // bind the list view to the observable list in the data class
+        todoListView.setItems(sortedList);
+        todoListView.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
+        todoListView.getSelectionModel().selectFirst();
+
+        todoListView.setCellFactory(new Callback<ListView<ToDoItem>, ListCell<ToDoItem>>() {
+            @Override
+            public ListCell<ToDoItem> call(ListView<ToDoItem> toDoItemListView) {
+                ListCell<ToDoItem> cell = new ListCell<ToDoItem>() {
+
+                    @Override
+                    protected void updateItem(ToDoItem item, boolean empty) {
+                        super.updateItem(item, empty);
+                        // if the cell is empty
+                        if(empty) {
+                            setText(null);
+                        } else {
+                            setText(item.getShortDescription());
+                            if(item.getDeadline().isBefore(LocalDate.now().plusDays(1))) {
+                                setTextFill(Color.RED);
+                            } else if(item.getDeadline().equals(LocalDate.now().plusDays(1))) {
+                                setTextFill(Color.YELLOW);
+                            }
+                        }
+                    }
+                };
+
+                cell.emptyProperty().addListener(
+                        (obs, wasEmpty, isNowEmpty) -> {
+                            if(isNowEmpty) {
+                                cell.setContextMenu(null);
+                            } else {
+                                cell.setContextMenu(listContextMenu);
+                            }
+                        }
+                );
+
+                return cell;
+            }
+        });
+    }
+
+//    @FXML
+//    public void handleClickListView() {
+//        ToDoItem item = todoListView.getSelectionModel().getSelectedItem();
+//        //System.out.println("The selected item is " + item);
+////        itemDetailsTextArea.setText(item.getDetails());
+////        StringBuilder sb = new StringBuilder(item.getDetails());
+////        sb.append("\n\n\n\n");
+////        sb.append("Due: ");
+////        sb.append(item.getDeadline());
+////        itemDetailsTextArea.setText(sb.toString());
+//
+//        itemDetailsTextArea.setText(item.getDetails());
+//        deadlineLabel.setText(item.getDeadline().toString());
+//
+//
+//    }
+
+
+    @FXML
+    public void showNewItemDialog() {
+        Dialog<ButtonType> dialog = new Dialog<>();
+        //dialog.initOwner(mainBorderPane.getScene().getWindow());
+        dialog.setTitle("Add New Todo Item");
+        dialog.setHeaderText("Use this dialogue to created a new item");
+
+        FXMLLoader fxmlLoader = new FXMLLoader();
+        fxmlLoader.setLocation(getClass().getResource("todoItemDialog.fxml"));
+
+        try {
+            dialog.getDialogPane().setContent(fxmlLoader.load());
+
+        } catch(IOException e) {
+            System.out.println("Couldn't load the dialog");
+            e.printStackTrace();
+            return;
+        }
+
+        dialog.getDialogPane().getButtonTypes().add(ButtonType.OK);
+        dialog.getDialogPane().getButtonTypes().add(ButtonType.CANCEL);
+
+
+        Optional<ButtonType> result = dialog.showAndWait();
+        if(result.isPresent() && result.get() == ButtonType.OK) {
+            DialogueController controller = fxmlLoader.getController();
+            ToDoItem newItem = controller.processResults();
+            // todoListView.getItems().setAll(TodoData.getInstance().getTodoItems());
+            todoListView.getSelectionModel().select(newItem);
+
+        }
+
+    }
+
+    @FXML
+    public void handleKeyPressed(KeyEvent event) {
+        ToDoItem selectedItem = todoListView.getSelectionModel().getSelectedItem();
+        if(selectedItem != null) {
+            if (event.getCode().equals(KeyCode.DELETE)) {
+                deleteItem(selectedItem);
+            }
+        }
+    }
+
+
+
+    public void deleteItem(ToDoItem item) {
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+        alert.setTitle("Delete Todo Item");
+        alert.setHeaderText("Delete item: " + item.getShortDescription());
+        alert.setContentText("Are you sure? Press OK to confirm, or cancel to back out.");
+        Optional<ButtonType> result = alert.showAndWait();
+
+        if(result.isPresent() && (result.get() == ButtonType.OK)) {
+            TodoData.getInstance().deleteToDoItem(item);
+        }
+
+    }
+
+    @FXML
+    public void handleFilterButton() {
+        // when the button isn't selected we want to show all items
+        // when the button is selected we want to show items due today
+
+        ToDoItem selectedItem = todoListView.getSelectionModel().getSelectedItem();
+
+        if(filterToggleButton.isSelected()) {
+            filteredList.setPredicate(wantTodaysItems);
+            if(filteredList.isEmpty()) {
+                itemDetailsTextArea.clear();
+                deadlineLabel.setText("");
+            } else if (filteredList.contains(selectedItem)) {
+                todoListView.getSelectionModel().select(selectedItem);
+            } else {
+                todoListView.getSelectionModel().selectFirst();
+            }
+        } else {
+            filteredList.setPredicate(wantAllItems);
+            todoListView.getSelectionModel().select(selectedItem);
+
+        }
+
+    }
+
+    @FXML
+    public void handleExit() {
+        Platform.exit();
+    }
+
+
+
+}
+
+```
+
+
+
+### Main
+
+```
+public class Main extends Application {
+
+    @Override
+    public void start(Stage primaryStage) throws Exception{
+        Parent root = FXMLLoader.load(getClass().getResource("sample.fxml"));
+        primaryStage.setTitle("Todo List");
+        primaryStage.setScene(new Scene(root, 900, 500));
+        primaryStage.show();
+    }
+
+
+    public static void main(String[] args) {
+        launch(args);
+    }
+
+    @Override
+    public void init() throws Exception {
+        try {
+            // store data to text file
+            TodoData.getInstance().loadTodoItems();
+
+        } catch(IOException e) {
+            System.out.println(e.getMessage());
+        }
+    }
+
+
+    @Override
+    public void stop() throws Exception {
+        try {
+            // store data to text file
+            TodoData.getInstance().storeToDoItems();
+
+        } catch(IOException e) {
+            System.out.println(e.getMessage());
+        }
+    }
+}
+```
+
+
+
+### DialogueController
+
+```
+public class DialogueController {
+
+    @FXML
+    private TextField shortDescriptionField;
+
+    @FXML
+    private TextArea detailsArea;
+
+    @FXML
+    private DatePicker deadlinePicker;
+
+    // gather the users input and create a todo item
+
+    public ToDoItem processResults() {
+        String shortDescription = shortDescriptionField.getText().trim();
+        String details = detailsArea.getText().trim();
+        LocalDate deadlineValue = deadlinePicker.getValue();
+
+        ToDoItem newItem = new ToDoItem(shortDescription, details, deadlineValue);
+        TodoData.getInstance().addTodoItem(newItem);
+        return newItem;
+
+    }
+
+
+}
+```
+
+
+
+### sample.fxml
+
+```
+<BorderPane fx:id="mainBorderPane" fx:controller="sample.Controller"
+            xmlns:fx="http://javafx.com/fxml">
+
+    <top>
+        <VBox>
+            <MenuBar>
+                <Menu text="File">
+                    <items>
+                        <MenuItem text="New..." onAction="#showNewItemDialog"/>
+                        <SeparatorMenuItem  />
+                        <MenuItem text="Exit" onAction="#handleExit"/>
+                    </items>
+                </Menu>
+            </MenuBar>
+
+            <ToolBar>
+                <HBox>
+                    <Button text="New..." onAction="#showNewItemDialog">
+                        <tooltip>
+                            <Tooltip text="Add a New Todo Item"/>
+                        </tooltip>
+                    </Button>
+                    <ToggleButton fx:id="filterToggleButton" text="Today's Items" onAction="#handleFilterButton">
+                        <tooltip>
+                            <Tooltip text="Button Down: Show Today's items only. Button Only: Show Yesterday's items only."/>
+                        </tooltip>
+                    </ToggleButton>
+                </HBox>
+            </ToolBar>
+
+        </VBox>
+    </top>
+
+
+    <left>
+        <ListView fx:id="todoListView" onKeyReleased="#handleKeyPressed">
+
+        </ListView>
+    </left>
+
+    <center>
+        <VBox style="-fx-background-color: white">
+        <TextArea fx:id="itemDetailsTextArea" VBox.vgrow="ALWAYS" wrapText="true"/>
+            <HBox>
+                <Label text="Due: " style="-fx-background-color: white">
+                    <font>
+                        <Font name="Times New Roman bold" size="20"/>
+                    </font>
+                </Label>
+                <Label fx:id="deadlineLabel" text="Due: " style="-fx-background-color: white">
+                    <font>
+                        <Font name="Times New Roman bold" size="20"/>
+                    </font>
+                </Label>
+
+
+            </HBox>
+        </VBox>
+    </center>
+
+</BorderPane>
+```
+
+
+
+
+
+
+
+### todoItemDialog.fxml
+
+```
+<DialogPane fx:controller="sample.DialogueController"
+            xmlns:fx="http://javafx.com/fxml">
+    <headerText>
+        We could put instructions here
+    </headerText>
+    <content>
+        <GridPane vgap="10" hgap="10">
+            <Label text="Short Description: " GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+            <TextField fx:id="shortDescriptionField" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
+            <Label text="Details:" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+            <TextArea fx:id="detailsArea" GridPane.rowIndex="1" GridPane.columnIndex="1" wrapText="true"/>
+            <Label text="Deadline:" GridPane.rowIndex="2" GridPane.columnIndex="0"/>
+            <DatePicker fx:id="deadlinePicker" GridPane.rowIndex="2" GridPane.columnIndex="1"/>
+
+        </GridPane>
+    </content>
+
+</DialogPane>
+```
+
+
+
+### module-info.java
+
+```
+module TodoList {
+
+    requires javafx.fxml;
+    requires javafx.controls;
+
+    opens sample;
+
+}
+```
+
+
+
+### TodoData
+
+```
+package sample.datamodel;
+
+public class TodoData {
+
+    private static TodoData instance = new TodoData();
+    private static String filename = "TodoListItems.txt";
+    private ObservableList<ToDoItem> todoItems;
+    private DateTimeFormatter formatter;
+
+    public static TodoData getInstance() {
+        return instance;
+    }
+
+    private TodoData() {
+        formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
+
+    }
+
+    public ObservableList<ToDoItem> getTodoItems() {
+        return todoItems;
+    }
+
+
+    public void loadTodoItems() throws IOException {
+        todoItems = FXCollections.observableArrayList();
+        Path path = Paths.get(filename);
+
+        BufferedReader br = Files.newBufferedReader(path);
+
+        String input;
+
+        try {
+            while ((input = br.readLine()) != null) {
+                String[] itemPieces = input.split("\t");
+
+                String shortDescription = itemPieces[0];
+                String details = itemPieces[1];
+                String dateString = itemPieces[2];
+
+                LocalDate date = LocalDate.parse(dateString, formatter);
+
+                ToDoItem todoItem = new ToDoItem(shortDescription, details, date);
+                todoItems.add(todoItem);
+            }
+
+        } finally {
+            if (br != null) {
+                br.close();
+            }
+        }
+
+
+
+    }
+
+
+    public void storeToDoItems() throws IOException {
+
+        Path path = Paths.get(filename);
+        BufferedWriter bw = Files.newBufferedWriter(path);
+        try {
+            Iterator<ToDoItem> iter = todoItems.iterator();
+            while (iter.hasNext()) {
+                ToDoItem item = iter.next();
+                bw.write(String.format("%s\t%s\t%s",
+                        item.getShortDescription(),
+                        item.getDetails(),
+                        item.getDeadline().format(formatter)));
+                bw.newLine();
+            }
+
+        } finally {
+            if (bw != null) {
+                bw.close();
+            }
+        }
+
+    }
+
+
+    public void deleteToDoItem(ToDoItem item) {
+        todoItems.remove(item);
+    }
+
+
+
+    public List<ToDoItem> getDoItems() {
+        return todoItems;
+    }
+
+
+    public void addTodoItem(ToDoItem item) {
+        todoItems.add(item);
+    }
+
+
+
+}
+```
+
+
+
+```
+package sample.datamodel;
+
+import java.time.LocalDate;
+
+public class ToDoItem {
+
+    private String shortDescription;
+    private String details;
+    private LocalDate deadline;
+
+    public ToDoItem(String shortDescription, String details, LocalDate deadline) {
+        this.shortDescription = shortDescription;
+        this.details = details;
+        this.deadline = deadline;
+    }
+
+    public String getShortDescription() {
+        return shortDescription;
+    }
+
+    public void setShortDescription(String shortDescription) {
+        this.shortDescription = shortDescription;
+    }
+
+    public String getDetails() {
+        return details;
+    }
+
+    public void setDetails(String details) {
+        this.details = details;
+    }
+
+    public LocalDate getDeadline() {
+        return deadline;
+    }
+
+    public void setDeadline(LocalDate deadline) {
+        this.deadline = deadline;
+    }
+
+
+//    @Override
+//    public String toString() {
+//        return shortDescription;
+//    }
+}
+
+```
 
