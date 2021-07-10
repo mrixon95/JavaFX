@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<contacts>
+<contact>
+	<first_name>Michael</first_name>
+	<last_name>Rixon</last_name>
+	<phone_number>0424766201</phone_number>
+	<notes>Nothing</notes>
+</contact>
+<contact>
+	<first_name>Mike</first_name>
+	<last_name>Rixon</last_name>
+	<phone_number>0424</phone_number>
+	<notes>None</notes>
+</contact>
+</contacts>

@@ -2732,3 +2732,1075 @@ public class ToDoItem {
 
 ```
 
+
+
+### CSS
+
+can do inline styling
+
+```
+<Button text="Button One" GridPane.rowIndex="0" GridPane.columnIndex="0"
+    style="-fx-background-color: green; -fx-text-fill:white"/>
+```
+
+
+
+Can style all button in the application without adding style property to every control in the application
+
+create a styles .css file and associate it with our application
+
+javafx does have its own styling sheet
+
+use the .button selector to select all instances of the button class
+
+```
+.button {
+    -fx-background-color: green;
+    -fx-text-fill: white;
+}
+```
+
+
+
+sample.fxml
+
+```
+<GridPane fx:controller="sample.Controller"
+          xmlns:fx="http://javafx.com/fxml" alignment="center" hgap="10" vgap="10" stylesheets="@styles.css">
+
+    <Button text="Button One" GridPane.rowIndex="0" GridPane.columnIndex="0"
+    style="-fx-background-color: green; -fx-text-fill:white"/>
+    <Button text="Button Two" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
+    <Button text="Button Three" GridPane.rowIndex="0" GridPane.columnIndex="2"/>
+    <Button text="Button Four" GridPane.rowIndex="0" GridPane.columnIndex="3"/>
+    <Button text="Button Five" GridPane.rowIndex="0" GridPane.columnIndex="4"/>
+
+
+</GridPane>
+```
+
+
+
+
+
+Inline styling does take precendence over the css styling sheet. It overrides the styling in the style sheet. In-line styling isn't recommend.
+
+
+
+
+
+Use id selector. Its not fx:id but id. This will associate the id name in the fxml file to the style sheet.
+
+Javafx theme is a set of css definitions. The default theme is MODENA but we can also use CASPIAN. We can override the style definitions by using a style sheet.
+
+
+
+Inline CSS takes precednce over the fxml style sheet, the fxml style sheet takes precedence over the applications theme style sheet.
+
+
+
+![Caspian_style](./images/Caspian_style.PNG)
+
+
+
+Can set effect on a button.
+
+```
+button4.setEffect(new Reflection());
+```
+
+File chooser class does not need to be embedded inside a UI.
+
+File choose does not descend from the node graph so it can't be added to the scene graph
+
+We want the file chooser to be model so that the user needs to choose a file before interacting with the main window again.
+
+
+
+Zoom in and out using an event listener
+
+```
+    @FXML
+    public void handleMouseEnter() {
+        label.setScaleX(2.0);
+        label.setScaleY(2.0);
+    }
+
+    @FXML
+    public void handleMouseExit() {
+        label.setScaleX(1.0);
+        label.setScaleY(1.0);
+    }
+```
+
+
+
+https://docs.oracle.com/javase/8/javafx/api/javafx/scene/effect/package-summary.html
+
+
+
+### DirectoryChooser
+
+```
+DirectoryChooser chooser = new DirectoryChooser();
+        chooser.showDialog(gridPane.getScene().getWindow());
+```
+
+
+
+### FileChooser
+
+```
+FileChooser chooser = new FileChooser();
+chooser.showOpenDialog(gridPane.getScene().getWindow())
+```
+
+
+
+```
+@FXML
+    public void handleClick() {
+//        FileChooser chooser = new FileChooser();
+//        chooser.showOpenDialog(gridPane.getScene().getWindow());
+
+        DirectoryChooser chooser = new DirectoryChooser();
+
+        // showDialog parameter is the stage that owns the Directory Chooser, owning means the stage which it is from.
+        File file = chooser.showDialog(gridPane.getScene().getWindow());
+        if(file != null) {
+            System.out.println(file.getPath());
+        } else {
+            System.out.println("Chooser was cancelled");
+        }
+
+
+    }
+```
+
+
+
+![ShowSaveDialog](./images/ShowSaveDialog.PNG)
+
+
+
+
+
+```
+    @FXML
+    public void handleClick() {
+//        FileChooser chooser = new FileChooser();
+//        chooser.showOpenDialog(gridPane.getScene().getWindow());
+
+        FileChooser chooser = new FileChooser();
+        chooser.setTitle("Save Application File");
+        chooser.getExtensionFilters().addAll(
+                new FileChooser.ExtensionFilter("Text", "*.txt"),
+                new FileChooser.ExtensionFilter("PDF", "*.pdf")
+        );
+
+
+        // showDialog parameter is the stage that owns the Directory Chooser, owning means the stage which it is from.
+        File file = chooser.showSaveDialog(gridPane.getScene().getWindow());
+        if(file != null) {
+            System.out.println(file.getPath());
+        } else {
+            System.out.println("Chooser was cancelled");
+        }
+
+
+    }
+```
+
+
+
+
+
+
+
+![ExtensionFilters](./images/ExtensionFilters.PNG)
+
+
+
+Can have multiple extensions.
+
+
+
+```
+FileChooser chooser = new FileChooser();
+        chooser.setTitle("Save Application File");
+        chooser.getExtensionFilters().addAll(
+                new FileChooser.ExtensionFilter("Zip", "*.zip"),
+                new FileChooser.ExtensionFilter("PDF", "*.pdf"),
+                new FileChooser.ExtensionFilter("Image Files", "*.jpg", "*png", "*gif"),
+                new FileChooser.ExtensionFilter("All Files", "*.*")
+        );
+
+```
+
+
+
+
+
+
+
+## Hyperlink and webview
+
+
+
+Hyperlink descends from the label class and displays a link.
+
+Hyperlink has three states: unvisited, clicked and visited.
+
+```
+<Hyperlink text="www.javafx.com" GridPane.rowIndex="3" GridPane.columnIndex="0" onAction="#handleLinkClicked"/>
+```
+
+
+
+We can display the contents of the webpage within the web view.
+
+
+
+```
+    @FXML
+    public void handleLinkClicked() {
+        try {
+            Desktop.getDesktop().browse(new URI("http://www.javafx.com"));
+        } catch (IOException | URISyntaxException e) {
+            e.printStackTrace();
+        }
+    }
+```
+
+
+
+Add a package to java.desktop
+
+### module-info.java
+
+```
+requires java.desktop;
+```
+
+
+
+Add a WebView control to the display the webpage.
+
+```
+<WebView fx:id="webView" GridPane.rowIndex="4" GridPane.columnIndex="0" GridPane.rowSpan="3" GridPane.columnSpan="5"/>
+```
+
+
+
+```
+    @FXML
+    public void handleLinkClicked() {
+//        try {
+//            Desktop.getDesktop().browse(new URI("http://www.javafx.com"));
+//        } catch (IOException | URISyntaxException e) {
+//            e.printStackTrace();
+//        }
+
+        WebEngine engine = webView.getEngine();
+        engine.load("http://www.javafx.com");
+
+
+    }
+```
+
+
+
+![webview](.\images\webview.PNG)
+
+### SceneBuilder
+
+We can use the GUI builder to build the interface to drag and drop controls and containers onto the screen. The scenebuilder will build the javafx code based on what we drag and drop.
+
+
+
+Its important to learn to write code first before using the tool.  Its there to help us, not as a substitute for not understanding the code ourselves.
+
+
+
+USe gluon to make sure you install the latest version of scenebuilder.
+
+
+
+https://gluonhq.com/products/scene-builder/
+
+
+
+![gluonhq](./images/gluonhq.PNG)
+
+
+
+Use scenebuilder in Intellij.
+
+Give the path to scenebuilder.
+
+![pathtoscenebuilder](.\images\pathtoscenebuilder.PNG)
+
+
+
+In the code section we can assign an fx:id.
+
+The classes in the data model should eb the only classes that can change the data file.
+
+Contact data class will contain the information for all the contacts.
+
+
+
+
+
+```
+mainPanel
+```
+
+
+
+
+
+### JavaFX Challenge
+
+Code
+
+
+
+![JavaFX_project_structure](./images/JavaFX_project_structure.PNG)
+
+
+
+
+
+### JavaFXChallenge file structure
+
+![JavaFXChallengeStructure](./images/JavaFXChallengeStructure.PNG)
+
+
+
+src/
+
+- sample/
+  - datamodel/
+    - Contact.java
+    - ContactData.java
+  - ContactController.java
+  - contactdialogue.fxml
+  - Controller.java
+  - Main.java
+  - main.fxml
+- module-info.java
+
+contacts.xml
+
+
+
+### Contact.java
+
+```java
+package sample.datamodel;
+
+import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.StringProperty;
+
+public class Contact {
+    // to take advantage of data binding
+    private SimpleStringProperty firstName = new SimpleStringProperty("");
+    private SimpleStringProperty lastName = new SimpleStringProperty("");
+    private SimpleStringProperty phoneNumber = new SimpleStringProperty("");
+    private SimpleStringProperty notes = new SimpleStringProperty("");
+
+
+    public Contact() {
+
+    }
+
+    public Contact(String firstName, String lastName, String phoneNumber, String notes) {
+        this.firstName.set(firstName);
+        this.lastName.set(lastName);
+        this.phoneNumber.set(phoneNumber);
+        this.notes.set(notes);
+    }
+
+
+    public String getFirstName() {
+        return firstName.get();
+    }
+
+    public SimpleStringProperty firstNameProperty() {
+        return firstName;
+    }
+
+    public void setFirstName(String firstName) {
+        this.firstName.set(firstName);
+    }
+
+    public String getLastName() {
+        return lastName.get();
+    }
+
+    public SimpleStringProperty lastNameProperty() {
+        return lastName;
+    }
+
+    public void setLastName(String lastName) {
+        this.lastName.set(lastName);
+    }
+
+    public String getPhoneNumber() {
+        return phoneNumber.get();
+    }
+
+    public SimpleStringProperty phoneNumberProperty() {
+        return phoneNumber;
+    }
+
+    public void setPhoneNumber(String phoneNumber) {
+        this.phoneNumber.set(phoneNumber);
+    }
+
+    public String getNotes() {
+        return notes.get();
+    }
+
+    public SimpleStringProperty notesProperty() {
+        return notes;
+    }
+
+    public void setNotes(String notes) {
+        this.notes.set(notes);
+    }
+
+
+    @Override
+    public String toString() {
+        return "Contact{" +
+                "firstName=" + firstName +
+                ", lastName=" + lastName +
+                ", phoneNumber=" + phoneNumber +
+                ", notes=" + notes +
+                '}';
+    }
+
+
+}
+```
+
+
+
+
+
+
+
+### ContactData.java
+
+```java
+package sample.datamodel;
+
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+
+import javax.xml.stream.XMLEventFactory;
+import javax.xml.stream.XMLEventReader;
+import javax.xml.stream.XMLEventWriter;
+import javax.xml.stream.XMLInputFactory;
+import javax.xml.stream.XMLOutputFactory;
+import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.events.Characters;
+import javax.xml.stream.events.EndElement;
+import javax.xml.stream.events.StartDocument;
+import javax.xml.stream.events.StartElement;
+import javax.xml.stream.events.XMLEvent;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.InputStream;
+
+
+public class ContactData {
+
+    private static final String CONTACTS_FILE = "contacts.xml";
+
+    private static final String CONTACT = "contact";
+    private static final String FIRST_NAME = "first_name";
+    private static final String LAST_NAME = "last_name";
+    private static final String PHONE_NUMBER = "phone_number";
+    private static final String NOTES = "notes";
+
+    private ObservableList<Contact> contacts;
+
+    public ContactData() {
+        // *** initialize the contacts list here ***
+        contacts = FXCollections.observableArrayList();
+    }
+
+    public ObservableList<Contact> getContacts() {
+        return contacts;
+    }
+
+    public void addContact(Contact item) {
+        contacts.add(item);
+    }
+
+    public void deleteContact(Contact item) {
+        contacts.remove(item);
+    }
+
+
+    // *** Add methods to add/delete/access contacts here ***
+
+    public void loadContacts() {
+        try {
+            // First, create a new XMLInputFactory
+            XMLInputFactory inputFactory = XMLInputFactory.newInstance();
+            // Setup a new eventReader
+            InputStream in = new FileInputStream(CONTACTS_FILE);
+            XMLEventReader eventReader = inputFactory.createXMLEventReader(in);
+            // read the XML document
+            Contact contact = null;
+
+            while (eventReader.hasNext()) {
+                XMLEvent event = eventReader.nextEvent();
+
+                if (event.isStartElement()) {
+                    StartElement startElement = event.asStartElement();
+                    // If we have a contact item, we create a new contact
+                    if (startElement.getName().getLocalPart().equals(CONTACT)) {
+                        contact = new Contact();
+                        continue;
+                    }
+
+                    if (event.isStartElement()) {
+                        if (event.asStartElement().getName().getLocalPart()
+                                .equals(FIRST_NAME)) {
+                            event = eventReader.nextEvent();
+                            contact.setFirstName(event.asCharacters().getData());
+                            continue;
+                        }
+                    }
+                    if (event.asStartElement().getName().getLocalPart()
+                            .equals(LAST_NAME)) {
+                        event = eventReader.nextEvent();
+                        contact.setLastName(event.asCharacters().getData());
+                        continue;
+                    }
+
+                    if (event.asStartElement().getName().getLocalPart()
+                            .equals(PHONE_NUMBER)) {
+                        event = eventReader.nextEvent();
+                        contact.setPhoneNumber(event.asCharacters().getData());
+                        continue;
+                    }
+
+                    if (event.asStartElement().getName().getLocalPart()
+                            .equals(NOTES)) {
+                        event = eventReader.nextEvent();
+                        contact.setNotes(event.asCharacters().getData());
+                        continue;
+                    }
+                }
+
+                // If we reach the end of a contact element, we add it to the list
+                if (event.isEndElement()) {
+                    EndElement endElement = event.asEndElement();
+                    if (endElement.getName().getLocalPart().equals(CONTACT)) {
+                        contacts.add(contact);
+                    }
+                }
+            }
+        }
+        catch (FileNotFoundException e) {
+            //e.printStackTrace();
+        }
+        catch (XMLStreamException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void saveContacts() {
+
+        try {
+            // create an XMLOutputFactory
+            XMLOutputFactory outputFactory = XMLOutputFactory.newInstance();
+            // create XMLEventWriter
+            XMLEventWriter eventWriter = outputFactory
+                    .createXMLEventWriter(new FileOutputStream(CONTACTS_FILE));
+            // create an EventFactory
+            XMLEventFactory eventFactory = XMLEventFactory.newInstance();
+            XMLEvent end = eventFactory.createDTD("\n");
+            // create and write Start Tag
+            StartDocument startDocument = eventFactory.createStartDocument();
+            eventWriter.add(startDocument);
+            eventWriter.add(end);
+
+            StartElement contactsStartElement = eventFactory.createStartElement("",
+                    "", "contacts");
+            eventWriter.add(contactsStartElement);
+            eventWriter.add(end);
+
+            for (Contact contact: contacts) {
+                saveContact(eventWriter, eventFactory, contact);
+            }
+
+            eventWriter.add(eventFactory.createEndElement("", "", "contacts"));
+            eventWriter.add(end);
+            eventWriter.add(eventFactory.createEndDocument());
+            eventWriter.close();
+        }
+        catch (FileNotFoundException e) {
+            System.out.println("Problem with Contacts file: " + e.getMessage());
+            e.printStackTrace();
+        }
+        catch (XMLStreamException e) {
+            System.out.println("Problem writing contact: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    private void saveContact(XMLEventWriter eventWriter, XMLEventFactory eventFactory, Contact contact)
+            throws FileNotFoundException, XMLStreamException {
+
+        XMLEvent end = eventFactory.createDTD("\n");
+
+        // create contact open tag
+        StartElement configStartElement = eventFactory.createStartElement("",
+                "", CONTACT);
+        eventWriter.add(configStartElement);
+        eventWriter.add(end);
+        // Write the different nodes
+        createNode(eventWriter, FIRST_NAME, contact.getFirstName());
+        createNode(eventWriter, LAST_NAME, contact.getLastName());
+        createNode(eventWriter, PHONE_NUMBER, contact.getPhoneNumber());
+        createNode(eventWriter, NOTES, contact.getNotes());
+
+        eventWriter.add(eventFactory.createEndElement("", "", CONTACT));
+        eventWriter.add(end);
+    }
+
+    private void createNode(XMLEventWriter eventWriter, String name,
+                            String value) throws XMLStreamException {
+
+        XMLEventFactory eventFactory = XMLEventFactory.newInstance();
+        XMLEvent end = eventFactory.createDTD("\n");
+        XMLEvent tab = eventFactory.createDTD("\t");
+        // create Start node
+        StartElement sElement = eventFactory.createStartElement("", "", name);
+        eventWriter.add(tab);
+        eventWriter.add(sElement);
+        // create Content
+        Characters characters = eventFactory.createCharacters(value);
+        eventWriter.add(characters);
+        // create End node
+        EndElement eElement = eventFactory.createEndElement("", "", name);
+        eventWriter.add(eElement);
+        eventWriter.add(end);
+    }
+}
+```
+
+
+
+### ControllerController.java
+
+```java
+package sample;
+
+import javafx.fxml.FXML;
+import javafx.scene.control.TextField;
+import sample.datamodel.Contact;
+
+public class ContactController {
+
+    @FXML
+    private TextField firstNameField;
+
+    @FXML
+    private TextField lastNameField;
+
+    @FXML
+    private TextField phoneNumberField;
+
+    @FXML
+    private TextField notesField;
+
+
+
+
+    public Contact getNewContact() {
+        String firstName = firstNameField.getText();
+        String lastName = lastNameField.getText();
+        String phoneNumber = phoneNumberField.getText();
+        String notes = notesField.getText();
+
+        Contact newContact = new Contact(firstName, lastName, phoneNumber, notes);
+        return newContact;
+
+    }
+
+    public void editContact(Contact contact) {
+        // set the fields in the dialogue to be that of what is already there in the contact.
+        firstNameField.setText(contact.getFirstName());
+        lastNameField.setText(contact.getLastName());
+        phoneNumberField.setText(contact.getPhoneNumber());
+        notesField.setText(contact.getNotes());
+
+    }
+
+    public void updateContact(Contact contact) {
+        // transfer the values in the dialogue box fields to the contact object
+        contact.setFirstName(firstNameField.getText());
+        contact.setLastName(lastNameField.getText());
+        contact.setPhoneNumber(phoneNumberField.getText());
+        contact.setNotes(notesField.getText());
+
+    }
+
+}
+
+```
+
+
+
+### contactdialogue.fxml
+
+```fxml
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import java.util.*?>
+<?import javafx.scene.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<DialogPane fx:controller="sample.ContactController" xmlns:fx="http://javafx.com/fxml">
+
+<headerText>
+
+</headerText>
+
+<content>
+    <GridPane vgap="10" hgap="10">
+        <Label text="First Name: " GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+        <TextField fx:id="firstNameField" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
+
+        <Label text="Last Name: " GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+        <TextField fx:id="lastNameField" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+
+        <Label text="Phone Number: " GridPane.rowIndex="2" GridPane.columnIndex="0"/>
+        <TextField fx:id="phoneNumberField" GridPane.rowIndex="2" GridPane.columnIndex="1"/>
+
+        <Label text="Notes: " GridPane.rowIndex="3" GridPane.columnIndex="0"/>
+        <TextField fx:id="notesField" GridPane.rowIndex="3" GridPane.columnIndex="1"/>
+    </GridPane>
+</content>
+
+</DialogPane>
+```
+
+
+
+### Controller.java
+
+```java
+package sample;
+
+import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.control.Alert;
+import javafx.scene.control.ButtonType;
+import javafx.scene.control.Dialog;
+import javafx.scene.control.TableView;
+import javafx.scene.layout.BorderPane;
+import sample.datamodel.Contact;
+import sample.datamodel.ContactData;
+
+import java.io.IOException;
+import java.util.Optional;
+
+public class Controller {
+
+    @FXML
+    private BorderPane mainPanel;
+
+    @FXML
+    private TableView<Contact> contactsTable;
+
+    private ContactData data;
+
+    public void initialize() {
+        // create an instance of the contactsData class
+        data = new ContactData();
+        data.loadContacts();
+        contactsTable.setItems(data.getContacts());
+
+    }
+
+
+    @FXML
+    public void showAddContactDialogue() {
+        // set new diagloue instance and set main window as its parent
+        Dialog<ButtonType> dialog = new Dialog<>();
+        dialog.initOwner(mainPanel.getScene().getWindow());
+        dialog.setTitle("Add New Contact");
+
+        FXMLLoader fxmlLoader = new FXMLLoader();
+        // load the fxml file
+        fxmlLoader.setLocation(getClass().getResource("contactdialogue.fxml"));
+
+        try {
+            // set the dialogue content to what is in the fxml file
+            dialog.getDialogPane().setContent(fxmlLoader.load());
+
+        } catch(IOException e) {
+            System.out.println("Couldn't load the dialog");
+            e.printStackTrace();
+            return;
+        }
+
+        dialog.getDialogPane().getButtonTypes().add(ButtonType.OK);
+        dialog.getDialogPane().getButtonTypes().add(ButtonType.CANCEL);
+
+
+        Optional<ButtonType> result = dialog.showAndWait();
+
+        if(result.isPresent() && result.get() == ButtonType.OK) {
+            ContactController contactcontroller = fxmlLoader.getController();
+            Contact contact = contactcontroller.getNewContact();
+            data.addContact(contact);
+            data.saveContacts();
+
+        }
+    }
+
+
+    @FXML
+    public void showEditContactDialogue() {
+        Contact selectedContact = contactsTable.getSelectionModel().getSelectedItem();
+        if(selectedContact == null) {
+            Alert alert = new Alert(Alert.AlertType.INFORMATION);
+            alert.setTitle("No Contact Selected");
+            alert.setHeaderText(null);
+            alert.setContentText("Please select the contact you want to edit.");
+            alert.showAndWait();
+            return;
+        }
+
+        Dialog<ButtonType> dialog = new Dialog<>();
+        dialog.initOwner(mainPanel.getScene().getWindow());
+        dialog.setTitle("Edit Contact");
+        FXMLLoader fxmlLoader = new FXMLLoader();
+        // load the fxml file
+        fxmlLoader.setLocation(getClass().getResource("contactdialogue.fxml"));
+
+
+        try {
+            // set the dialogue content to what is in the fxml file
+            dialog.getDialogPane().setContent(fxmlLoader.load());
+
+        } catch(IOException e) {
+            System.out.println("Couldn't load the dialog");
+            e.printStackTrace();
+            return;
+        }
+
+        dialog.getDialogPane().getButtonTypes().add(ButtonType.OK);
+        dialog.getDialogPane().getButtonTypes().add(ButtonType.CANCEL);
+
+        ContactController contactController = fxmlLoader.getController();
+        // set the fields in the dialog for the Contact
+        contactController.editContact(selectedContact);
+
+        Optional<ButtonType> result = dialog.showAndWait();
+
+        if(result.isPresent() && result.get() == ButtonType.OK) {
+            ContactController contactcontroller = fxmlLoader.getController();
+            contactcontroller.updateContact(selectedContact);
+            data.saveContacts();
+
+        }
+
+
+    }
+
+
+
+    public void deleteContact() {
+
+        Contact selectedContact = contactsTable.getSelectionModel().getSelectedItem();
+        // alert the user that no contact has been selected
+        if(selectedContact == null) {
+            Alert alert = new Alert(Alert.AlertType.INFORMATION);
+            alert.setTitle("No Contact Selected");
+            alert.setHeaderText(null);
+            alert.setContentText("Please selected the contact you");
+            alert.showAndWait();
+            return;
+        }
+
+        // alert the user that the contact will be deleted
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+        alert.setTitle("Delete Contact");
+        alert.setHeaderText(null);
+        alert.setContentText("Are you sure you want to delete the selected contact? " +
+                selectedContact.getFirstName() + " " + selectedContact.getLastName());
+
+        // confirm that the user clicks OK to deleting the contact
+        Optional<ButtonType> result = alert.showAndWait();
+
+        if(result.isPresent() && result.get() == ButtonType.OK) {
+            data.deleteContact(selectedContact);
+            data.saveContacts();
+        }
+
+
+    }
+
+
+
+}
+```
+
+
+
+
+
+### Main.java
+
+```
+package sample;
+
+import javafx.application.Application;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
+import javafx.stage.Stage;
+
+public class Main extends Application {
+
+    @Override
+    public void start(Stage primaryStage) throws Exception{
+        Parent root = FXMLLoader.load(getClass().getResource("main.fxml"));
+        primaryStage.setTitle("My Contacts");
+        primaryStage.setScene(new Scene(root, 600, 400));
+        primaryStage.show();
+    }
+
+
+    public static void main(String[] args) {
+        launch(args);
+    }
+}
+```
+
+
+
+### main.fxml
+
+```
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.layout.GridPane?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.control.cell.PropertyValueFactory?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.MenuBar?>
+<?import javafx.scene.control.Menu?>
+<?import javafx.scene.control.MenuItem?>
+<BorderPane fx:id="mainPanel" fx:controller="sample.Controller"
+            xmlns:fx="http://javafx.com/fxml">
+
+    <top>
+        <MenuBar>
+            <menus>
+                <Menu text="Contacts">
+                    <items>
+                        <MenuItem text="Add..." onAction="#showAddContactDialogue"/>
+                    </items>
+                    <items>
+                        <MenuItem text="Edit..." onAction="#showEditContactDialogue"/>
+                    </items>
+                    <items>
+                        <MenuItem text="Delete..." onAction="#deleteContact"/>
+                    </items>
+                </Menu>
+            </menus>
+        </MenuBar>
+    </top>
+
+    <center>
+        <TableView fx:id="contactsTable">
+
+            <columnResizePolicy>
+                <TableView fx:constant="CONSTRAINED_RESIZE_POLICY"/>
+            </columnResizePolicy>
+
+            <columns>
+                <TableColumn text="First Name" prefWidth="100">
+                    <cellValueFactory><PropertyValueFactory property="firstName" />
+                    </cellValueFactory>
+                </TableColumn>
+                <TableColumn text="Last Name" prefWidth="100">
+                    <cellValueFactory><PropertyValueFactory property="lastName" />
+                    </cellValueFactory>
+                </TableColumn>
+                <TableColumn text="Phone Number" prefWidth="200">
+                    <cellValueFactory><PropertyValueFactory property="phoneNumber" />
+                    </cellValueFactory>
+                </TableColumn>
+                <TableColumn text="notes" prefWidth="200">
+                    <cellValueFactory><PropertyValueFactory property="notes" />
+                    </cellValueFactory>
+                </TableColumn>
+            </columns>
+
+        </TableView>
+    </center>
+</BorderPane>
+```
+
+
+
+### module-info.java
+
+```
+module JavaFXChallenge {
+
+    requires javafx.fxml;
+    requires javafx.controls;
+    requires java.xml;
+
+    opens sample;
+    opens sample.datamodel;
+
+}
+```
+
+
+
+### contacts.xml
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<contacts>
+<contact>
+	<first_name>Michael</first_name>
+	<last_name>Rixon</last_name>
+	<phone_number>0424766201</phone_number>
+	<notes>Nothing</notes>
+</contact>
+<contact>
+	<first_name>Mike</first_name>
+	<last_name>Rixon</last_name>
+	<phone_number>0424</phone_number>
+	<notes>None</notes>
+</contact>
+</contacts>
+```
+
+
+
+
+
