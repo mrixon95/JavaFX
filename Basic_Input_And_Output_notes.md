@@ -188,3 +188,305 @@ private static int divide() {
 
 
 CTRL+D closes the programs input stream.
+
+
+
+### Multicatch exceptions
+
+```java
+    private static int divide() {
+        int x; int y;
+        try {
+            x = getInt();
+            y = getInt();
+        } catch (NoSuchElementException e){
+            throw new ArithmeticException("No suitable input");
+        }
+
+        System.out.println("x is " + x + ", y is " + y);
+
+        try {
+            return x/y;
+        } catch(ArithmeticException e) {
+            throw new ArithmeticException("Attempt to divide by zero");
+        }
+
+
+    }
+    
+    private static int getInt() {
+        Scanner s = new Scanner(System.in);
+        System.out.println("Please enter an integer: ");
+
+        while(true) {
+            try {
+                return s.nextInt();
+            } catch(InputMismatchException e) {
+                // go around again. Read oass the end of line in the input first
+                s.nextLine();
+                System.out.println("Please enter a number using only the digits 0 through 9");
+            }
+        }
+    }
+```
+
+
+
+### Multicatch exceptions
+
+```java
+private static int divide() {
+        int x; int y;
+        try {
+            x = getInt();
+            y = getInt();
+            System.out.println("x is " + x + ", y is " + y);
+            return x/y;
+        } catch (NoSuchElementException e){
+            throw new NoSuchElementException("No suitable input");
+        } catch(ArithmeticException e) {
+            throw new ArithmeticException("Attempt to divide by zero");
+        }
+
+
+    }
+```
+
+Once an exception is catched all remaining exceptions are ignored.
+
+
+
+```java
+public static void main(String[] args) {
+
+        try {
+            int result = divide();
+            System.out.println(result);
+        } catch (ArithmeticException e) {
+            System.out.println(e.toString());
+            System.out.println("Unable to perform division, autopilot shutting down");
+        }
+
+
+    }
+```
+
+
+
+
+
+```java
+public static void main(String[] args) {
+
+        try {
+            int result = divide();
+            System.out.println(result);
+        } catch (ArithmeticException | NoSuchElementException e) {
+            System.out.println(e.toString());
+            System.out.println("Unable to perform division, autopilot shutting down");
+        }
+    }
+
+    private static int divide() {
+        int x;
+        int y;
+
+        x = getInt();
+        y = getInt();
+        System.out.println("x is " + x + ", y is " + y);
+        return x / y;
+    }
+
+    private static int getInt() {
+        Scanner s = new Scanner(System.in);
+        System.out.println("Please enter an integer: ");
+
+        while(true) {
+            try {
+                return s.nextInt();
+            } catch(InputMismatchException e) {
+                // go around again. Read oass the end of line in the input first
+                s.nextLine();
+                System.out.println("Please enter a number using only the digits 0 through 9");
+            }
+        }
+
+    }
+```
+
+
+
+### Input involves reading data from a source and output involves writing to a destination.
+
+
+
+When storing classes it may be more appropriate to use a binary format for string the data. Character is the correct type for XML or JSON data.
+
+
+
+Sequential data has a set order to reading in the data. eg. a text file
+
+Random access data is not ordered, eg. a database 
+
+
+
+The static initialisation block is only executed once when the class is loaded.
+
+
+
+Data can be corrupted when the file is not closed.
+
+
+
+Can't ignore checked exceptions.
+
+The finally block always run.
+
+```java
+public static void main(String[] args) throws IOException {
+        FileWriter localFile = null;
+        localFile = new FileWriter("locations.txt");
+        try {
+            for(Location location: locations.values()) {
+                localFile.write(location.getLocationID() + "," + location.getDescription() + "\n");
+            }
+        } catch (IOException e) {
+            System.out.println("In catch block");
+            e.printStackTrace();
+        } finally {
+            try {
+                if(localFile != null) {
+                    System.out.println("Attempting to close locfile");
+                    localFile.close();
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+
+    }
+```
+
+
+
+![inputoutputstatic](./images/inputoutputstatic.PNG)
+
+
+
+
+
+FileNotFoundException when a folder already exists called locations.txt and a file is trying to be created by the program called locations.txt.
+
+FileNotFoundException is a subclass of the IOException class.
+
+![filenotfoundexception](.\images\filenotfoundexception.PNG)
+
+
+
+```java
+public static void main(String[] args) throws IOException {
+        FileWriter localFile = null;
+        localFile = new FileWriter("locations.txt");
+        try {
+            for(Location location: locations.values()) {
+                localFile.write(location.getLocationID() + "," + location.getDescription() + "\n");
+            }
+        } catch (IOException e) {
+            System.out.println("In catch block");
+            e.printStackTrace();
+        } finally {
+            try {
+                if(localFile != null) {
+                    System.out.println("Attempting to close locfile");
+                    localFile.close();
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+
+    }
+```
+
+
+
+
+
+Write the first line and then throw an IOException. This checks that the file is closed after the IOException is thrown and the file is saved gracefully.
+
+```
+public static void main(String[] args) throws IOException {
+    FileWriter localFile = null;
+    localFile = new FileWriter("locations.txt");
+    try {
+        for(Location location: locations.values()) {
+            localFile.write(location.getLocationID() + "," + location.getDescription() + "\n");
+            throw new IOException("test exception thrown while writing");
+        }
+    } finally {
+            if(localFile != null) {
+                System.out.println("Attempting to close locfile");
+                localFile.close();
+            }
+        }
+}
+```
+
+
+
+locations.txt
+
+```
+0,You are sitting in front of a computer learning Java
+```
+
+Still processes the finally clause.
+
+
+
+With the try with resources, the file writer is closed gracefully whether or not an exception is raised.
+
+```java
+try (FileWriter localFile = new FileWriter("locations.txt")) {
+            for (Location location : locations.values()) {
+                localFile.write(location.getLocationID() + "," + location.getDescription() + "\n");
+                throw new IOException("test exception thrown while writing");
+            }
+        }
+```
+
+
+
+
+
+The file reader object is passed to the Scanner which then reads in the stream from the file reader. The scanner then works with the data from the FileReader stream.
+
+```java
+static {
+
+        Scanner scanner = null;
+        try {
+            scanner = new Scanner(new FileReader("locations.txt"));
+            scanner.useDelimiter(",");
+            while(scanner.hasNextLine()) {
+                int loc = scanner.nextInt();
+                scanner.skip(scanner.delimiter());
+                String description = scanner.nextLine();
+                System.out.println("Imported loc: " + loc + ": " + description);
+
+                Map<String, Integer> tempExit = new HashMap<I
+
+            }
+        } catch (IOException e){
+            e.printStackTrace();
+
+        } finally {
+            if(scanner != null) {
+                scanner.close();
+            }
+        }
+}
+```
+
