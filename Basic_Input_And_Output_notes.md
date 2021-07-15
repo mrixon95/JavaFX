@@ -1770,7 +1770,41 @@ The 1st application can't access the heap that belongs to the 2nd Java applicati
 
 
 
+A thread is a unit of execution within a process. Each process can have multiple threads. In Java, every process/application has at least one thread, the main thread. For UI applications, this is called the JavaFX application thread. In fact, just about every Java process also has multiple system threads that handle tasks like memory management and I/O. We the developers don't explicitly creayte and code those threads. Our code runs on the main thread, or in other threads that we explicitly create.
 
+
+
+Create a thread doesn't require as many resources as creating a process. Every thread created by a process shares the process' memory and files. This can create problems, as we will see in a later lecture.
+
+In addition to the process' memory or heap, each thread has what's called a thread stack which is the memory that only that thread can access. We'll look at what's stored in the heap vs what's stored in the thread stack in a later lecture.
+
+
+
+So, every Java applications runs as a single process, and each process can have multiple threads. Every process has a heap and every thread has a thread stack.
+
+
+
+Why have multiple threads?
+
+Sometimes we have a task that will take a long time eg. query a database or fetch data from the internet. If we do this on the main thread, we won't be able to do anything else whilst we wait for the process runs.
+
+The execution of the main thread will be suspended as it queries the database or fetches data from the internet. The main thread execution will be suspended and we will just have to wait for the data to be returned before we can execute the next line of code. To the user, this suspension whilst waiting for data can make it seem like the application has died, especially with UI applications.
+
+
+
+So instead of using the main thread and having to wait for it to complete before continuing the program, we can create another thread and execute the long-running task on that thread. By having another thread, we can free up the main thread so that it can continue executing. The main thread can also report progress or accept user input whilst the long-running task continues to execute in the back ground.
+
+The 2nd reason to use threads is that an API may require us to provide one. Sometimes we have to provide the code that will run when a method we've called reaches a certain point in its execution. In this instance, we don't usually create a thread. We pass in the code that we want too run on the thread.
+
+Concurrency means doing more than one thing at a time, Concurrency means that progress can be made on more than one task. 
+
+Say we had to download data and draw a shape in an application.
+
+If its a concurrent application, then it can download a bit of data, then switch to drawing part of the shape, then go back and download some more data, then go back and draw more of the shape and so on.
+
+Concurrency means that one task doesn't have to complete before another can start. We can do a bit of one, and a bit of the other. Java provides thread-related classes so that we can create Java concurrent applications.
+
+When threads are sheduled to run, we are at the mercy of the JVM and the operating system when it comes to when threads are scheduled to run.
 
 
 
