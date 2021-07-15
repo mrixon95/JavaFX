@@ -1362,4 +1362,419 @@ public static void main(String[] args) throws IOException {
 
 If two foo instances point to the same bar instance then only one is serialised.
 
-The serialised file will only every contain one copy of the same instance. Object instances are unique within a file but not across filkes.
+The serialised file will only every contain one copy of the same instance. Object instances are unique within a file but not across files.
+
+
+
+This time, let's read the location in everytime a player moves to that location.
+
+This means that we need to move to the particular location in the file rather than just reading in each location sequentially.
+
+This is where random access class coms in.
+
+In such a situation, it would be best to use a database rather than a flat file. In this scenario we will be using a flat file.
+
+The file pointer is an offset in the file where the next read or write will begin from.
+
+Whenever we read/write the file, the file pointer is advanced by the number of bytes we read/write in.
+
+Offset is the byte location in the file. If the offset (file pointer) has value 100 then the pointer is located at value 100.
+
+First byte in the file is in the position 0. 
+
+
+
+When using random access files we refer to each set of related data as a record.
+
+In our application, the location id, description and exits make up the record for a location.
+
+When a user moves to a location, how do we know which bytes to be read from the file.
+
+The index stores the record length and offset for each location. 
+
+We will get the index record for the location and use the index values to read in the data.
+
+
+
+Will use the file pointer to point to where the first read/write will take place.
+
+The file pointer is always advanced by the number of bytes read or written.
+
+The file pointer will already be position correctly if it is after the file we read or wrote.
+
+Only need to call the seek method when we want to jump to a different offset in the file.
+
+
+
+Let's use a random access file and read in locations on demand.
+
+
+
+
+
+```
+write to a random access file
+rwd - indicates that we are opening the file for reading and writing and that we want writes to occur snychronously
+Each index record will contain 3 integers - the location ID, the offset for the location and the size/ length of the location record
+```
+
+
+
+Can't do read and write objects with a random access file.
+
+
+
+```java
+String description = ra.readUTF(); // the write UTF method writes the length of the string followed by the string itself.
+        // hence readUTF can read the length of the string and the string itself.
+```
+
+
+
+
+
+```java
+ra.seek(record.getStartByte()); // move the file pointer to the locations offset
+// using the seek method from the random access file
+```
+
+
+
+Only reading in the locations one at a time from the Random Access File
+
+
+
+The code
+
+
+
+### Locations
+
+```java
+package com.timbuchalka;
+
+import java.io.*;
+import java.util.*;
+
+public class Locations implements Map<Integer, Location> {
+    private static Map<Integer, Location> locations = new LinkedHashMap<Integer, Location>();
+    private static Map<Integer, IndexRecord> index = new LinkedHashMap<>();
+    private static RandomAccessFile ra;
+
+    public static void main(String[] args) throws IOException {
+
+        try (RandomAccessFile rao = new RandomAccessFile("locations_rand.dat", "rwd")) {
+            rao.writeInt(locations.size());
+            int indexSize = locations.size() * 3 * Integer.BYTES;
+            int locationStart = (int) (indexSize + rao.getFilePointer() + Integer.BYTES);
+            rao.writeInt(locationStart);
+
+            long indexStart = rao.getFilePointer();
+
+            int startPointer = locationStart;
+            rao.seek(startPointer);
+
+            for(Location location : locations.values()) {
+                rao.writeInt(location.getLocationID());
+                rao.writeUTF(location.getDescription());
+                StringBuilder builder = new StringBuilder();
+                for(String direction : location.getExits().keySet()) {
+                    if(!direction.equalsIgnoreCase("Q")) {
+                        builder.append(direction);
+                        builder.append(",");
+                        builder.append(location.getExits().get(direction));
+                        builder.append(",");
+                    }
+                }
+                rao.writeUTF(builder.toString());
+
+                IndexRecord record = new IndexRecord(startPointer, (int) (rao.getFilePointer() - startPointer));
+                index.put(location.getLocationID(), record);
+
+                startPointer = (int) rao.getFilePointer();
+            }
+
+            rao.seek(indexStart);
+            for(Integer locationID : index.keySet()) {
+                rao.writeInt(locationID);
+                rao.writeInt(index.get(locationID).getStartByte());
+                rao.writeInt(index.get(locationID).getLength());
+            }
+
+        }
+
+    }
+
+    // 1. This first four bytes will contain the number of locations (bytes 0-3)
+    // 2. The next four bytes will contain the start offset of the locations section (bytes 4-7)
+    // 3. The next section of the file will contain the index (the index is 1692 bytes long.  It will start at byte 8 and end at byte 1699
+    // 4. The final section of the file will contain the location records (the data). It will start at byte 1700
+
+
+    static {
+        try {
+            ra = new RandomAccessFile("locations_rand.dat", "rwd");
+            int numLocations = ra.readInt();
+            long locationStartPoint = ra.readInt();
+
+            while(ra.getFilePointer() < locationStartPoint) {
+                int locationId = ra.readInt();
+                int locationStart = ra.readInt();
+                int locationLength = ra.readInt();
+
+                IndexRecord record = new IndexRecord(locationStart, locationLength);
+                index.put(locationId, record);
+            }
+
+        } catch(IOException e) {
+            System.out.println("IOException in static initializer: " + e.getMessage());
+        }
+    }
+
+    public Location getLocation(int locationId) throws IOException {
+
+        IndexRecord record = index.get(locationId);
+        ra.seek(record.getStartByte());
+        int id = ra.readInt();
+        String description = ra.readUTF();
+        String exits = ra.readUTF();
+        String[] exitPart = exits.split(",");
+
+        Location location = new Location(locationId, description, null);
+
+        if(locationId != 0) {
+            for(int i=0; i<exitPart.length; i++) {
+                System.out.println("exitPart = " + exitPart[i]);
+                System.out.println("exitPart[+1] = " + exitPart[i+1]);
+                String direction = exitPart[i];
+                int destination = Integer.parseInt(exitPart[++i]);
+                location.addExit(direction, destination);
+            }
+        }
+
+        return location;
+    }
+
+    @Override
+    public int size() {
+        return locations.size();
+    }
+
+    @Override
+    public boolean isEmpty() {
+        return locations.isEmpty();
+    }
+
+    @Override
+    public boolean containsKey(Object key) {
+        return locations.containsKey(key);
+    }
+
+    @Override
+    public boolean containsValue(Object value) {
+        return locations.containsValue(value);
+    }
+
+    @Override
+    public Location get(Object key) {
+        return locations.get(key);
+    }
+
+    @Override
+    public Location put(Integer key, Location value) {
+        return locations.put(key, value);
+    }
+
+    @Override
+    public Location remove(Object key) {
+        return locations.remove(key);
+    }
+
+    @Override
+    public void putAll(Map<? extends Integer, ? extends Location> m) {
+
+    }
+
+    @Override
+    public void clear() {
+        locations.clear();
+
+    }
+
+    @Override
+    public Set<Integer> keySet() {
+        return locations.keySet();
+    }
+
+    @Override
+    public Collection<Location> values() {
+        return locations.values();
+    }
+
+    @Override
+    public Set<Entry<Integer, Location>> entrySet() {
+        return locations.entrySet();
+    }
+
+    public void close() throws IOException {
+        ra.close();
+    }
+}
+
+```
+
+
+
+### Location
+
+```java
+public class Location implements Serializable {
+    private final int locationID;
+    private final String description;
+    private final Map<String, Integer> exits;
+
+    private long serialVersionUID = 1L;
+
+    public Location(int locationID, String description, Map<String, Integer> exits) {
+        this.locationID = locationID;
+        this.description = description;
+        if(exits != null) {
+            this.exits = new LinkedHashMap<String, Integer>(exits);
+        } else {
+            this.exits = new LinkedHashMap<String, Integer>();
+        }
+        this.exits.put("Q", 0);
+    }
+
+//    public void addExit(String direction, int location) {
+//        exits.put(direction, location);
+//    }
+
+    public int getLocationID() {
+        return locationID;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public Map<String, Integer> getExits() {
+        return new LinkedHashMap<String, Integer>(exits);
+    }
+    protected void addExit(String direction, int location) {
+        exits.put(direction, location);
+    }
+}
+```
+
+
+
+
+
+### Main
+
+```java
+public class Main {
+
+    private static Locations locations = new Locations();
+
+
+    public static void main(String[] args) throws IOException {
+        // Change the program to allow players to type full words, or phrases, then move to the
+        // correct location based upon their input.
+        // The player should be able to type commands such as "Go West", "run South", or just "East"
+        // and the program will move to the appropriate location if there is one.  As at present, an
+        // attempt to move in an invalid direction should print a message and remain in the same place.
+        //
+        // Single letter commands (N, W, S, E, Q) should still be available.
+
+        // File format:
+        // 1. The first 4 bytes will contain the number of locations (bytes 0-3)
+        // 2. The next four bytes will contain the start offset of the locations section (bytes 4-7)
+        // . The next section of the file will contain the index (the index is 1692 bytes long. It will start at byte 8 and end at byte 1699.
+        // 3. The next section of the file will contain the location records (the data). It will start at byte 1700.
+
+
+
+        Scanner scanner = new Scanner(System.in);
+
+        Map<String, String> vocabulary = new HashMap<String, String>();
+        vocabulary.put("QUIT", "Q");
+        vocabulary.put("NORTH", "N");
+        vocabulary.put("SOUTH", "S");
+        vocabulary.put("WEST", "W");
+        vocabulary.put("EAST", "E");
+
+
+        int loc = 64;
+        Location currentLocation = locations.getLocation(64);
+        while(true) {
+            System.out.println(currentLocation.getDescription());
+
+            // if we reach location 0 then we break out of the program
+            if(currentLocation.getLocationID() == 0) {
+                break;
+            }
+
+            Map<String, Integer> exits = currentLocation.getExits();
+            System.out.print("Available exits are ");
+            for(String exit: exits.keySet()) {
+                System.out.print(exit + ", ");
+            }
+            System.out.println();
+
+            String direction = scanner.nextLine().toUpperCase();
+            if(direction.length() > 1) {
+                String[] words = direction.split(" ");
+                for(String word: words) {
+                    if(vocabulary.containsKey(word)) {
+                        direction = vocabulary.get(word);
+                        break;
+                    }
+                }
+            }
+
+            if(exits.containsKey(direction)) {
+                currentLocation = locations.getLocation(currentLocation.getExits().get(direction));
+
+            } else {
+                System.out.println("You cannot go in that direction");
+            }
+        }
+
+        locations.close();
+
+    }
+}
+```
+
+
+
+
+
+
+
+
+
+
+
+### Concurrency/Threads
+
+
+
+A process is a unit of execution that has its own memory space. Each application has its own memory space of heap. 
+
+Process and application can be used interchangeable. Process <-> Application.
+
+The 1st application can't access the heap that belongs to the 2nd Java application. The heap isn't shared between them. They have their own.
+
+
+
+
+
+
+
+
+
+
+

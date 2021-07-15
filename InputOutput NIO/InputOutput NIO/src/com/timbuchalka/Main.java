@@ -1,14 +1,11 @@
 package com.timbuchalka;
 
-import java.io.FileWriter;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Scanner;
 
 public class Main {
-
     private static Locations locations = new Locations();
-
 
     public static void main(String[] args) {
         // Change the program to allow players to type full words, or phrases, then move to the
@@ -19,15 +16,7 @@ public class Main {
         //
         // Single letter commands (N, W, S, E, Q) should still be available.
 
-        // File format:
-        // 1. The first 4 bytes will contain the number of locations (bytes 0-3)
-        // 2. The next four bytes will contain the start offset of the locations section (bytes 4-7)
-        // . The next section of the file will contain the index (the index is 1692 bytes long. It will start at byte 8 and end at byte 1699.
-        // 3. The next section of the file will contain the location records (the data). It will start at byte 1700.
-
-
-
-        Scanner scanner = new Scanner(System.in);
+	    Scanner scanner = new Scanner(System.in);
 
         Map<String, String> vocabulary = new HashMap<String, String>();
         vocabulary.put("QUIT", "Q");
@@ -38,6 +27,7 @@ public class Main {
 
 
         int loc = 64;
+//        int loc = 1;
         while(true) {
             System.out.println(locations.get(loc).getDescription());
 
