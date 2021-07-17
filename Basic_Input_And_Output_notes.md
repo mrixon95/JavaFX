@@ -1808,7 +1808,358 @@ When threads are sheduled to run, we are at the mercy of the JVM and the operati
 
 
 
+We are going to create a subclass of the thread class and override the run method.
 
 
 
+Create a new thread and run the start method, which will run the run method.
+
+```java
+System.out.println("Hello from the main thread");
+
+Thread anotherThread = new AnotherThread();
+anotherThread.start();
+
+System.out.println("Hello again from the main thread");
+```
+
+
+
+```java
+public class AnotherThread extends Thread {
+    @Override
+    public void run() {
+        System.out.println("Hello from another thread");
+
+    }
+}
+```
+
+
+
+Its up to the system to schedule the threads.
+
+We can't reuse the same instance of a thread.
+
+If we can start multiple times then we will get an exception
+
+Can't guarantee order of thread execution.
+
+![ThreadOrderOfExecution](./images/ThreadOrderOfExecution.PNG)
+
+
+
+Another way to create a thread is by using the runnable interface. Only needs to implement the run method.
+
+We tell the thread what to run by overriding the run method.
+
+Anonymous class is good if you only want to run the code once. Can't start the same instance of a thread once.
+
+
+
+```java
+public class MyRunnable implements Runnable {
+
+    @Override
+    public void run() {
+        System.out.println(ANSI_RED + "Hello from MyRunnable's implementation of run()");
+    }
+}
+```
+
+
+
+```java
+Thread myRunnableThread = new Thread(new MyRunnable());
+myRunnableThread.start();
+```
+
+
+
+Runs the code in the 
+
+```java
+Thread myRunnableThread = new Thread(new MyRunnable() {
+            @Override
+            public void run() {
+                super.run();
+            }
+        });
+```
+
+
+
+It is preferrable to use the runnable interface since there are many methods in the Java API that want runnable instance passed to it. Also since the introduction of lambda expressions, its convenient to use anonymous runnable instances
+
+A thread terminates when it returns from its run method.
+
+Do not call the thread instance's run method, instead call the start method.
+
+We implement the run method but call the start method.
+
+The JVM will call the run method for us after we call the start method.
+
+If we do make the mistake of calling the run method, the code will be run on the same thread that call the run method. This is instad of running the code on a new thread.
+
+
+
+```java
+public class AnotherThread extends Thread {
+    @Override
+    public void run() {
+        System.out.println(ANSI_BLUE + "Hello from" + currentThread().getName());
+
+        try {
+            Thread.sleep(3000);
+        } catch(InterruptedException e) {
+            System.out.println(ANSI_BLUE + "Another thread woke me up");
+        }
+
+        System.out.println(ANSI_BLUE + "Three seconds have passed and I'm awake");
+
+    }
+}
+```
+
+
+
+To interrupt a thread we need to call the interrupt method on the thread instance it wants to interrupt
+
+
+
+```java
+anotherThread.interrupt();
+```
+
+
+
+
+
+```java
+public class AnotherThread extends Thread {
+    @Override
+    public void run() {
+        System.out.println(ANSI_BLUE + "Hello from" + currentThread().getName());
+
+        try {
+            Thread.sleep(3000);
+        } catch(InterruptedException e) {
+            System.out.println(ANSI_BLUE + "Another thread woke me up");
+            return;
+        }
+
+        System.out.println(ANSI_BLUE + "Three seconds have passed and I'm awake");
+
+    }
+}
+
+```
+
+
+
+### Join
+
+There are situations where we can't run a thread until another one has terminated. Eg. a thread needs data and won't execute until the thread that retrieves all the data has finished executing. In this case we can join the thread to the thread that is retrieving the data.
+
+When we join thread A to thread B, thread A will wait for thread B to terminate before it will execute itself.
+
+
+
+```java
+Thread myRunnableThread = new Thread(new MyRunnable() {
+    @Override
+    public void run() {
+        System.out.println(ANSI_RED + "Hello from the anonymous class's implementation of run()");
+        try {
+            anotherThread.join();
+            System.out.println(ANSI_RED + "AnotherThread terminated so I'm running again");
+        } catch(InterruptedException e) {
+            System.out.println(ANSI_RED + "I couldn't wait after all. I was interrupted");
+        }
+    }
+});
+```
+
+myRunnable thread will wait for anotherThread to execute.
+
+
+
+![CountDown](.\images\CountDown.PNG)
+
+
+
+Thread  2 skips from 9 to 7 because thread 1 already printed 8.
+
+Technology: The heap is the application's memory that all threads share.
+
+Every thread has a thread stack and this is memory that only that thread can access. Thread 1 cannot access Thread 2's stack and vice cersa.
+
+When multiple threads are working with the same object, they share the same object. When one thread changes one of the object's isntance variables, the other threads will see that value from that point onwards.
+
+We pass the same countdown instance to both threads.
+
+The for condition assigns the initial value to the variable and after that point just checks that the condition is met.
+
+In the for loop, the thread can be suspended just before decrementing i, just before printing the condition or just before printing out the value.
+
+The two threads interfere with each other, whenever one thread tries to run, the other thread has changed the value of i and so the thread starts at a different position.
+
+
+
+```java
+public class Main {
+
+    public static void main(String[] args) {
+	// use a count down object to count down to 0.
+        CountDown countdown = new CountDown();
+
+        CountDownThread t1 = new CountDownThread(countdown);
+        t1.setName("Thread 1");
+
+        CountDownThread t2 = new CountDownThread(countdown);
+        t2.setName("Thread 2");
+
+        t1.start();
+        t2.start();
+
+    }
+
+}
+
+
+
+class CountDown {
+    private int i;
+
+    public void doCountdown() {
+        String color;
+
+        switch(Thread.currentThread().getName()) {
+            case "Thread 1":
+                color = ThreadColor.ANSI_CYAN;
+                break;
+
+            case "Thread 2":
+                color = ThreadColor.ANSI_PURPLE;
+                break;
+
+            default:
+                color = ThreadColor.ANSI_GREEN;
+        }
+
+        for(i=10; i > 0; i--) {
+            System.out.println(color + Thread.currentThread().getName() + ": i =" + i);
+        }
+
+    }
+
+}
+
+class CountDownThread extends Thread {
+    private CountDown threadCountDown;
+
+    public CountDownThread(CountDown countdown) {
+        threadCountDown = countdown;
+    }
+
+    public void run() {
+        threadCountDown.doCountdown();
+    }
+
+}
+
+```
+
+
+
+No interference when we have two countdown instances.
+
+```java
+CountDown countdown1 = new CountDown();
+CountDown countdown2 = new CountDown();
+```
+
+
+
+
+
+![NoInterferenceBetweenThreads](./images/NoInterferenceBetweenThreads.PNG)
+
+
+
+We need to allow multiple threads to access the same record, but prevent race condition (thread interference).
+
+The process of controlling when threads execute code and therefore access the heap (process memory) is called synronisation.
+
+When a method is synchronised, only one thread can execute that at a time. When a thread is executing the method, all other methods that want to call that method will suspend until the method running the thread exits it. Then another synchronised method can run the method, and another. Only one thread can run a synchronised method at a time.
+
+To create threads: we just have to create an object subclass from thread and call the start method.
+
+Or we can create an instance of a thread with a runnable object.
+
+
+
+
+
+## To prevent a race condition
+
+Race condition is where 2 or more threads are updating the same resource. To synchronise a method, we add the synchronized keyword to the method declaration. We want the whole method to run before another method gets access to it.
+
+Without synchronization, multiple threads can access the same method at the same time.
+
+The process of controlling when a thread executes code and therefore when they can access the processes' memory (the heap) is called synchronization.
+
+
+
+![WithoutSynchronization](./images/WithoutSynchronization.PNG)
+
+
+
+
+
+With synchronization, only one thread at a time can run
+
+the same method. We need to synchronize all areas where interference can happen.
+
+
+
+![WithSynchronization](./images/WithSynchronization.PNG)
+
+
+
+We can also synchronize a block of statements.
+
+Every Java object has an intrinsic lock. We can synchronise a block of statements which work with an object by forcing each thread to have to acquire the lock to the object before the execute the statement block. Only one thread can hold the lock at a time so the other threads will be suspended until the other thread releases it. Primitive types don't have a lock.
+
+Local variables are stored in the thread stack. Each thread will create its own copy of the local variable and each copy is an object with its own lock. Thread 1 gets its own copy and the lock for its own copy and continues executing. Thread 2 gets its own copy and the lock for its own copy and continues executing. When synchronizing, we need to use an object that both the threads share. Don't use local vartiables for synchronization. Object values are stored on the heap but the reference is stored in the thread stack.
+
+```java
+synchronized(color) {
+    for (i = 10; i > 0; i--) {
+        System.out.println(color + Thread.currentThread().getName() + ": i =" + i);
+    }
+}
+```
+
+vs
+
+```java
+synchronized(this) {
+    for (i = 10; i > 0; i--) {
+        System.out.println(color + Thread.currentThread().getName() + ": i =" + i);
+    }
+}
+```
+
+
+
+We can synchronise static methods and static objects, the lock is owned by the class object associated with the objects class. 
+
+Critical section is that code which references a shared resource like a variable. Only one thread should be able to access it at a time.
+
+A class is thread safe if the developer has syncronised all the ciritical sections within the code so we as a developer do not need to worry about thread interference.
+
+anotherThread.join(3000) will wait for anotherThread to finish executing or for 3 sconds to elapse. Whatever happens first.
+
+A for loop consists of several steps and a thread can be suspended between any of the steps and another thread starts running. The threads keep on interfering with eachother because whenever they get a chance to run the other thread has changed the value of i.
 
